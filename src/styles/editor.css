@@ -1,0 +1,259 @@
+/* Lexical editor theme classes */
+.obelisk-editor-root {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.obelisk-paragraph {
+  margin: 0;
+  padding: 4px 0;
+}
+
+.obelisk-h1 {
+  font-size: 2em;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 1em 0 0.5em;
+  color: var(--text-primary);
+}
+
+.obelisk-h2 {
+  font-size: 1.5em;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0.8em 0 0.4em;
+  color: var(--text-primary);
+}
+
+.obelisk-h3 {
+  font-size: 1.25em;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0.6em 0 0.3em;
+  color: var(--text-primary);
+}
+
+.obelisk-h4 {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 0.5em 0 0.25em;
+}
+
+.obelisk-h5 {
+  font-size: 1em;
+  font-weight: 600;
+  margin: 0.4em 0 0.2em;
+}
+
+.obelisk-h6 {
+  font-size: 0.9em;
+  font-weight: 600;
+  margin: 0.4em 0 0.2em;
+  color: var(--text-secondary);
+}
+
+.obelisk-quote {
+  margin: 0.5em 0;
+  padding: 0.5em 1em;
+  border-left: 3px solid var(--accent-500);
+  color: var(--text-secondary);
+  background: var(--surface-secondary);
+  border-radius: 0 4px 4px 0;
+}
+
+.obelisk-ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+  margin: 0.25em 0;
+}
+
+.obelisk-ol {
+  list-style-type: decimal;
+  padding-left: 1.5em;
+  margin: 0.25em 0;
+}
+
+.obelisk-listitem {
+  margin: 2px 0;
+}
+
+.obelisk-nested-listitem {
+  list-style-type: none;
+}
+
+.obelisk-listitem-checked {
+  text-decoration: line-through;
+  color: var(--text-tertiary);
+}
+
+.obelisk-code {
+  font-family: 'Fira Code', 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.875em;
+  line-height: 1.6;
+  background: var(--surface-tertiary);
+  border-radius: 6px;
+  padding: 1em;
+  margin: 0.5em 0;
+  overflow-x: auto;
+  tab-size: 2;
+}
+
+.obelisk-link {
+  color: var(--accent-500);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.obelisk-link:hover {
+  color: var(--accent-600);
+}
+
+/* Inline text styles */
+.obelisk-text-bold {
+  font-weight: 700;
+}
+
+.obelisk-text-italic {
+  font-style: italic;
+}
+
+.obelisk-text-strikethrough {
+  text-decoration: line-through;
+}
+
+.obelisk-text-underline {
+  text-decoration: underline;
+}
+
+.obelisk-text-underline-strikethrough {
+  text-decoration: underline line-through;
+}
+
+.obelisk-text-code {
+  font-family: 'Fira Code', 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.85em;
+  padding: 1px 4px;
+  background: var(--surface-tertiary);
+  border-radius: 3px;
+}
+
+.obelisk-text-subscript {
+  font-size: 0.8em;
+  vertical-align: sub;
+}
+
+.obelisk-text-superscript {
+  font-size: 0.8em;
+  vertical-align: super;
+}
+
+/* Code highlighting tokens */
+.obelisk-tokenComment {
+  color: #708090;
+}
+
+.obelisk-tokenPunctuation {
+  color: #999;
+}
+
+.obelisk-tokenProperty {
+  color: #905;
+}
+
+.obelisk-tokenSelector {
+  color: #690;
+}
+
+.obelisk-tokenOperator {
+  color: #9a6e3a;
+}
+
+.obelisk-tokenAttr {
+  color: #07a;
+}
+
+.obelisk-tokenVariable {
+  color: #e90;
+}
+
+.obelisk-tokenFunction {
+  color: #dd4a68;
+}
+
+/* Table styles */
+.obelisk-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.5em 0;
+  table-layout: fixed;
+}
+
+.obelisk-table-cell {
+  border: 1px solid var(--surface-border);
+  padding: 8px 12px;
+  vertical-align: top;
+  min-width: 60px;
+}
+
+.obelisk-table-cell-header {
+  background: var(--surface-secondary);
+  font-weight: 600;
+}
+
+.obelisk-table-row {
+}
+
+.obelisk-table-add-columns {
+  position: absolute;
+  right: -20px;
+  background: var(--accent-500);
+  width: 20px;
+  cursor: pointer;
+}
+
+.obelisk-table-add-rows {
+  position: absolute;
+  bottom: -20px;
+  background: var(--accent-500);
+  height: 20px;
+  cursor: pointer;
+}
+
+/* Dark mode overrides for syntax highlighting */
+[data-theme='dark'] .obelisk-tokenComment {
+  color: #6a9955;
+}
+
+[data-theme='dark'] .obelisk-tokenProperty {
+  color: #b5cea8;
+}
+
+[data-theme='dark'] .obelisk-tokenSelector {
+  color: #ce9178;
+}
+
+[data-theme='dark'] .obelisk-tokenOperator {
+  color: #d4d4d4;
+}
+
+[data-theme='dark'] .obelisk-tokenAttr {
+  color: #569cd6;
+}
+
+[data-theme='dark'] .obelisk-tokenVariable {
+  color: #9cdcfe;
+}
+
+[data-theme='dark'] .obelisk-tokenFunction {
+  color: #dcdcaa;
+}
+
+/* Editor scroller */
+.editor-scroller {
+  min-height: 100%;
+  overflow: auto;
+}

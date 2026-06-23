@@ -1,0 +1,112 @@
+@import './styles/editor.css';
+@import './styles/print.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root,
+[data-theme='light'] {
+  --accent-50: #f0fdfa;
+  --accent-100: #ccfbf1;
+  --accent-200: #99f6e4;
+  --accent-300: #5eead4;
+  --accent-400: #2dd4bf;
+  --accent-500: #14b8a6;
+  --accent-600: #0d9488;
+  --accent-700: #0f766e;
+  --accent-800: #115e59;
+  --accent-900: #134e4a;
+
+  --surface-primary: #ffffff;
+  --surface-secondary: #f8fafc;
+  --surface-tertiary: #f1f5f9;
+  --surface-hover: #e2e8f0;
+  --surface-border: #e2e8f0;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --text-inverse: #ffffff;
+
+  --callout-info-bg: #eff6ff;
+  --callout-info-border: #3b82f6;
+  --callout-warning-bg: #fffbeb;
+  --callout-warning-border: #f59e0b;
+  --callout-tip-bg: #f0fdf4;
+  --callout-tip-border: #22c55e;
+  --callout-danger-bg: #fef2f2;
+  --callout-danger-border: #ef4444;
+  --callout-note-bg: #f8fafc;
+  --callout-note-border: #64748b;
+}
+
+[data-theme='dark'] {
+  --accent-50: #042f2e;
+  --accent-100: #134e4a;
+  --accent-200: #115e59;
+  --accent-300: #0f766e;
+  --accent-400: #0d9488;
+  --accent-500: #14b8a6;
+  --accent-600: #2dd4bf;
+  --accent-700: #5eead4;
+  --accent-800: #99f6e4;
+  --accent-900: #ccfbf1;
+
+  --surface-primary: #0f172a;
+  --surface-secondary: #1e293b;
+  --surface-tertiary: #334155;
+  --surface-hover: #475569;
+  --surface-border: #334155;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-inverse: #0f172a;
+
+  --callout-info-bg: #1e3a5f;
+  --callout-info-border: #3b82f6;
+  --callout-warning-bg: #422006;
+  --callout-warning-border: #f59e0b;
+  --callout-tip-bg: #052e16;
+  --callout-tip-border: #22c55e;
+  --callout-danger-bg: #450a0a;
+  --callout-danger-border: #ef4444;
+  --callout-note-bg: #1e293b;
+  --callout-note-border: #64748b;
+}
+
+@layer base {
+
+  html,
+  body,
+  #root {
+    @apply h-full m-0 p-0;
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--text-primary);
+    background: var(--surface-primary);
+  }
+
+  * {
+    @apply border-surface-border;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
