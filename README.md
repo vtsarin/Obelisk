@@ -1,106 +1,303 @@
-# Obelisk
+<div align="center">
 
-A block-based rich-text editor built with **Lexical**, **React 18**, and **IndexedDB**. Offline-first, no backend, no collaboration — just fast local editing with multi-document workspace management.
+<img src="docs/assets/logo.svg" alt="Obelisk" width="280" />
 
-## Features
+<br />
+<br />
 
-- **Rich-text editing** — headings, lists, quotes, code blocks, tables, links
-- **Custom blocks** — callouts, toggles, dividers, images, embeds (YouTube/Vimeo/Figma), Mermaid diagrams, LaTeX math (inline + block), mentions, database references
-- **Slash menu** — type `/` to insert any block type with fuzzy search
-- **Floating toolbar** — select text to format (bold, italic, strikethrough, code, highlight, super/subscript, link)
-- **Top toolbar** — block type selector, formatting, insert, indent, undo/redo
-- **Markdown shortcuts** — `#`, `>`, `-`, `1.`, `` ` ``, `**`, `_`, `~~` auto-convert as you type
-- **Command palette** — `⌘K` to navigate docs, run actions, or insert blocks
-- **Workspace sidebar** — create/rename/delete documents and folders, tree view
-- **Full-text search** — search across all documents
-- **Outline panel** — heading-based TOC with click-to-scroll
-- **Breadcrumb** — shows cursor position in document structure
-- **Auto-save** — debounced persistence to IndexedDB with status indicator
-- **Version history** — automatic snapshots (last 10), restore/rename/delete
-- **Export** — JSON (lossless), Markdown (zip with images), HTML (self-contained), PDF (print-based)
-- **Import** — JSON (lossless), Markdown (basic)
-- **Dark/light theme** — CSS variables with system preference detection
-- **Image handling** — paste, drag-and-drop, or file picker; stored as blobs in IndexedDB
-- **Nesting rules** — max 3-level indent depth enforced
-- **Keyboard-first** — all actions accessible via shortcuts
+**The block-based document studio — offline-first, keyboard-driven, endlessly extensible.**
 
-## Tech Stack
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React 18](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](https://react.dev/)
+[![Lexical](https://img.shields.io/badge/Lexical-0.27-000000?logo=meta&logoColor=white)](https://lexical.dev/)
+[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-14B8A6)](LICENSE)
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | React 18 + TypeScript (strict) |
-| Editor | Lexical |
-| State | Zustand |
-| Storage | IndexedDB via `idb` |
-| Styling | TailwindCSS + CSS variables |
-| UI primitives | Radix UI |
-| Build | Vite |
-| Math | KaTeX (lazy) |
-| Diagrams | Mermaid (lazy) |
-| Icons | Lucide React |
+[Features](#-features) · [Quick Start](#-quick-start) · [Architecture](#-architecture) · [Keyboard Shortcuts](#-keyboard-shortcuts) · [Contributing](#-contributing) · [Roadmap](#-roadmap)
 
-## Getting Started
+</div>
+
+---
+
+## Overview
+
+Obelisk is a local-first, block-based rich-text editor that runs entirely in your browser. No accounts, no servers, no telemetry — your documents live in IndexedDB and never leave your machine.
+
+Built on [Lexical](https://lexical.dev/) for surgical control over the editing experience, with a plugin architecture that makes every feature composable and every block type extensible.
+
+---
+
+## ✨ Features
+
+### Editor Core
+
+| Feature | Description |
+| :--- | :--- |
+| **Rich text** | Headings (H1–H6), bold, italic, strikethrough, highlight, superscript, subscript, inline code |
+| **Lists** | Bullet, numbered, with nesting up to 3 levels |
+| **Code blocks** | Syntax-highlighted fenced blocks with language detection |
+| **Tables** | Full row/column editing via `@lexical/table` |
+| **Links** | Inline links with URL editing via floating toolbar |
+| **Quotes** | Block quotes with Markdown shortcut (`>`) |
+
+### Custom Blocks
+
+| Block | Description |
+| :--- | :--- |
+| **Callout** | Info, Warning, Tip, Danger, Note — with variant icons and themed colors |
+| **Toggle** | Collapsible `<details>`-style sections |
+| **Divider** | Visual horizontal rule separator |
+| **Image** | Paste, drop, or pick files — stored as blobs in IndexedDB |
+| **Embed** | YouTube, Vimeo, Figma — auto-detected iframe rendering |
+| **Mermaid** | Live-rendered diagrams with split source/preview editor |
+| **Math (inline)** | KaTeX-rendered LaTeX within text flow |
+| **Math (block)** | Display-mode LaTeX equations |
+| **Mention** | `@`-reference to documents, users, or blocks |
+| **Database Ref** | Placeholder for linked databases (coming soon) |
+
+### Workspace & Navigation
+
+| Feature | Description |
+| :--- | :--- |
+| **Multi-document** | Create, rename, delete documents and folders |
+| **Tree sidebar** | Hierarchical folder/doc tree with drag-and-drop ordering |
+| **Full-text search** | Fuzzy search across all documents in the workspace |
+| **Command palette** | `⌘K` — navigate, insert blocks, toggle theme, export |
+| **Outline panel** | Heading-based TOC with filter and click-to-scroll |
+| **Breadcrumb bar** | Live cursor position within the document structure |
+
+### Persistence & History
+
+| Feature | Description |
+| :--- | :--- |
+| **Auto-save** | Debounced (1s) save to IndexedDB with status chip |
+| **Version snapshots** | Last 10 automatic snapshots — restore, rename, or delete |
+| **Search index** | Automatically updated full-text index per document |
+| **Asset storage** | Images stored as blobs, served via cached `objectURL`s |
+
+### Export & Import
+
+| Format | Export | Import | Notes |
+| :--- | :---: | :---: | :--- |
+| **JSON** | ✅ | ✅ | Lossless — canonical Lexical state + metadata |
+| **Markdown** | ✅ | ✅ | Zip bundle with `/images` folder |
+| **HTML** | ✅ | — | Self-contained, base64-inlined images, offline-ready |
+| **PDF** | ✅ | — | Print-based with dedicated `@media print` styles |
+
+### Theming & Accessibility
+
+- **Light & Dark mode** — CSS custom properties with system preference detection
+- **Keyboard-first** — every action reachable via shortcuts
+- **Responsive layout** — collapsible sidebar, flexible 3-pane shell
+- **Accessible** — Radix UI primitives, ARIA labels, focus management
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js** ≥ 18
+- **npm** ≥ 9
+
+### Install & Run
 
 ```bash
-# Install dependencies
+git clone https://github.com/your-org/obelisk.git
+cd obelisk
 npm install
-
-# Start dev server
 npm run dev
-
-# Type-check
-npx tsc --noEmit
-
-# Production build
-npm run build
-
-# Preview production build
-npm run preview
 ```
 
-The app runs at `http://localhost:5173` by default.
+Open **http://localhost:5173** — that's it. No env vars, no API keys, no backend.
 
-## Project Structure
+### Scripts
+
+| Command | Description |
+| :--- | :--- |
+| `npm run dev` | Start Vite dev server with HMR |
+| `npm run build` | Type-check + production build to `dist/` |
+| `npm run preview` | Serve production build locally |
+| `npx tsc --noEmit` | Type-check without emitting |
+
+---
+
+## 🏗 Architecture
 
 ```
+┌─────────────────────────────────────────────────────────────────┐
+│                         App Shell (React)                        │
+├──────────┬──────────────────────────────────┬───────────────────┤
+│ Sidebar  │         Editor (Lexical)         │  Outline Panel    │
+│          │                                  │                   │
+│ • Tree   │  ┌─ TopToolbar ──────────────┐   │  • Heading TOC    │
+│ • Search │  │ Breadcrumb                │   │  • Filter         │
+│ • CRUD   │  │ ┌────────────────────────┐│   │  • Click-to-nav   │
+│          │  │ │   ContentEditable      ││   │                   │
+│          │  │ │                        ││   │                   │
+│          │  │ │   (Lexical Nodes)      ││   │                   │
+│          │  │ └────────────────────────┘│   │                   │
+│          │  │ FloatingToolbar  SlashMenu│   │                   │
+│          │  └───────────────────────────┘   │                   │
+├──────────┴──────────────────────────────────┴───────────────────┤
+│                     Footer (save status + time)                  │
+└─────────────────────────────────────────────────────────────────┘
+         │                    │                         │
+    ┌────▼────┐       ┌──────▼──────┐          ┌──────▼──────┐
+    │ Zustand │       │   Lexical   │          │  IndexedDB  │
+    │  Store  │       │  EditorState│          │   (via idb) │
+    │         │       │             │          │             │
+    │ • UI    │       │ • Nodes     │          │ • docs      │
+    │ • Tree  │       │ • Plugins   │          │ • content   │
+    │ • Theme │       │ • Commands  │          │ • versions  │
+    └─────────┘       └─────────────┘          │ • assets    │
+                                               │ • search    │
+                                               └─────────────┘
+```
+
+### Project Structure
+
+```text
 src/
-├── App.tsx                    # Main shell (sidebar + editor + outline)
-├── main.tsx                   # React entry point
-├── index.css                  # Theme variables, Tailwind, global styles
-├── components/                # Header, Footer
-├── db/                        # IndexedDB schema, interfaces, implementations
-│   ├── idb.ts                 # openDB + schema definition
-│   ├── interfaces.ts          # WorkspaceStore, AssetStore interfaces
-│   ├── workspaceStore.impl.ts # CRUD for docs, folders, versions, search index
-│   └── assetStore.impl.ts     # Blob storage for images
+├── App.tsx                        Main 3-pane shell
+├── main.tsx                       ReactDOM entry
+├── index.css                      Theme tokens + Tailwind + globals
+│
+├── components/                    Header, Footer
+├── db/                            IndexedDB layer
+│   ├── idb.ts                     Schema + openDB
+│   ├── interfaces.ts              Store contracts
+│   ├── workspaceStore.impl.ts     Docs/folders/versions CRUD
+│   ├── assetStore.impl.ts         Blob storage
+│   └── migrations.ts              State schema versioning
+│
 ├── editor/
-│   ├── Editor.tsx             # LexicalComposer + plugin composition
-│   ├── theme.ts               # Lexical theme class mapping
-│   ├── nodes/                 # Custom node types (Callout, Toggle, etc.)
-│   ├── plugins/               # Editor plugins (autosave, slash menu, etc.)
-│   └── commands/              # insertBlock command + block palette registry
+│   ├── Editor.tsx                 LexicalComposer + plugin tree
+│   ├── theme.ts                   CSS class → Lexical theme map
+│   ├── nodes/                     10 custom node types
+│   ├── plugins/                   12 editor plugins
+│   └── commands/                  Block insert registry + palette data
+│
 ├── features/
-│   ├── workspace/             # Sidebar, TreeItem, WorkspaceSearch
-│   ├── commandPalette/        # ⌘K command palette
-│   ├── outline/               # Heading TOC sidebar
-│   ├── breadcrumb/            # Cursor breadcrumb bar
-│   ├── versions/              # Version history dialog
-│   └── export/                # Export dialogs + format implementations
-├── import/                    # JSON and Markdown import
-├── lib/                       # Utilities (ids, debounce, slug, cn, plaintext)
-├── store/                     # Zustand workspace store + selectors
-├── styles/                    # editor.css, print.css
-└── types/                     # TypeScript models
+│   ├── workspace/                 Sidebar, TreeItem, WorkspaceSearch
+│   ├── commandPalette/            ⌘K dialog
+│   ├── outline/                   Heading TOC panel
+│   ├── breadcrumb/                Cursor path bar
+│   ├── versions/                  Snapshot history dialog
+│   └── export/                    Export dialog + format modules
+│
+├── import/                        JSON + Markdown import
+├── lib/                           Utility functions
+├── store/                         Zustand store + selectors
+├── styles/                        editor.css, print.css
+└── types/                         TypeScript interfaces
 ```
 
-## Key Design Decisions
+### Tech Stack
 
-- **Lexical JSON is canonical** — editor state stored as serialized JSON in IndexedDB
-- **No editor state in Zustand** — only UI/workspace state lives in the store
-- **Blob URLs cached + revoked** — images served via `URL.createObjectURL`, cleaned up on unmount
-- **Lazy-loaded heavy deps** — KaTeX and Mermaid loaded via dynamic `import()` only when needed
-- **Export bridge pattern** — editor-dependent exports (MD, HTML) use window events to access the Lexical editor instance without prop drilling
+| Layer | Choice | Why |
+| :--- | :--- | :--- |
+| **UI** | React 18 | Mature ecosystem, concurrent features |
+| **Editor** | Lexical | Extensible, performant, Meta-backed |
+| **State** | Zustand | Minimal, no boilerplate, outside-React access |
+| **Storage** | IndexedDB (`idb`) | Offline-first, structured, blob-capable |
+| **Styling** | TailwindCSS | Utility-first, tree-shakeable, CSS vars for theming |
+| **Primitives** | Radix UI | Accessible, unstyled, composable |
+| **Build** | Vite | Sub-second HMR, optimized chunks |
+| **Math** | KaTeX | Fast, accurate LaTeX rendering (lazy-loaded) |
+| **Diagrams** | Mermaid | Declarative diagrams (lazy-loaded) |
+| **Icons** | Lucide | Consistent, tree-shakeable SVG icons |
+| **Search** | Fuse.js | Client-side fuzzy search |
 
-## License
+---
 
-Private — not yet open-sourced.
+## ⌨️ Keyboard Shortcuts
+
+| Shortcut | Action |
+| :--- | :--- |
+| `⌘ K` | Open command palette |
+| `⌘ B` | Bold |
+| `⌘ I` | Italic |
+| `⌘ ⇧ S` | Strikethrough |
+| `⌘ E` | Inline code |
+| `⌘ Z` | Undo |
+| `⌘ ⇧ Z` | Redo |
+| `Tab` | Indent |
+| `⇧ Tab` | Outdent |
+| `/` | Open slash menu (at line start) |
+
+### Markdown Shortcuts (auto-convert on space/enter)
+
+| Input | Result |
+| :--- | :--- |
+| `# ` … `###### ` | Heading 1–6 |
+| `> ` | Block quote |
+| `- ` or `* ` | Bullet list |
+| `1. ` | Numbered list |
+| `` ``` `` | Code block |
+| `**text**` | **Bold** |
+| `_text_` | *Italic* |
+| `~~text~~` | ~~Strikethrough~~ |
+| `` `code` `` | `Inline code` |
+
+---
+
+## 🧩 Design Decisions
+
+| Decision | Rationale |
+| :--- | :--- |
+| **Lexical JSON as canonical format** | Lossless serialization; enables deep equality tests on import/export round-trips |
+| **Editor state NOT in Zustand** | Avoids 60fps update storms; Lexical manages its own reactivity |
+| **Blob URLs cached & revoked** | Prevents memory leaks from orphaned object URLs |
+| **KaTeX/Mermaid lazy-loaded** | 900KB+ combined — only loaded when a math/diagram node exists |
+| **Export bridge via events** | Editor-dependent exports need Lexical instance without prop-drilling through React tree |
+| **Max 3-level nesting** | Prevents deeply nested content that degrades readability and accessibility |
+| **No backend in v1** | Simplifies deployment to zero; collaboration planned for v2 |
+
+---
+
+## 🗺 Roadmap
+
+- [ ] **Drag handle** — reorder blocks via drag-and-drop
+- [ ] **Linked databases** — Notion-style relational views embedded in docs
+- [ ] **Real-time collaboration** — CRDT-based with WebRTC or WebSocket
+- [ ] **PWA support** — installable, offline, service worker caching
+- [ ] **Plugin API** — third-party block types and plugins
+- [ ] **Mobile layout** — responsive editor with touch gestures
+- [ ] **Keyboard shortcuts overlay** — visual shortcut reference panel
+- [ ] **Template system** — pre-built document templates
+- [ ] **Backlinks** — bi-directional document references
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read the guidelines before submitting.
+
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feat/my-feature`
+3. **Commit** with conventional commits: `feat:`, `fix:`, `docs:`, `refactor:`
+4. **Push** and open a Pull Request
+
+### Development Notes
+
+- Run `npx tsc --noEmit` before committing — zero errors required
+- All custom nodes must implement `exportJSON()` / `importJSON()` for lossless persistence
+- Heavy dependencies (KaTeX, Mermaid) must be lazy-loaded via dynamic `import()`
+- CSS uses theme variables (`var(--*)`) — never hardcode colors
+
+---
+
+## 📄 License
+
+MIT © Obelisk Contributors
+
+---
+
+<div align="center">
+
+<img src="docs/assets/icon.svg" alt="Obelisk" width="32" />
+
+<sub>Built with Lexical, React, and an unhealthy obsession with block editors.</sub>
+
+</div>
