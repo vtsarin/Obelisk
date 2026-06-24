@@ -149,8 +149,8 @@ const InlineMathComponent = memo(function InlineMathComponent({
 
   if (isSelected) {
     return (
-      <span className="inline-flex items-center bg-accent-500/10 rounded px-1" contentEditable={false}>
-        <span className="text-accent-500 text-xs mr-0.5">$</span>
+      <span className="inline-flex items-center bg-accent-soft rounded px-1" contentEditable={false}>
+        <span className="text-accent-fg text-xs mr-0.5">$</span>
         <input
           ref={inputRef}
           className="bg-transparent outline-none text-sm font-mono text-text-primary min-w-[40px]"
@@ -165,14 +165,14 @@ const InlineMathComponent = memo(function InlineMathComponent({
             }
           }}
         />
-        <span className="text-accent-500 text-xs ml-0.5">$</span>
+        <span className="text-accent-fg text-xs ml-0.5">$</span>
       </span>
     );
   }
 
   return (
     <span
-      className="cursor-pointer hover:bg-accent-500/5 rounded px-0.5 inline"
+      className="cursor-pointer hover:bg-accent-soft rounded px-0.5 inline"
       contentEditable={false}
       onClick={() => {
         clearSelection();

@@ -68,8 +68,8 @@ export function ExportDialog() {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/30 z-50" />
-        <Dialog.Content className="fixed top-[20%] left-1/2 -translate-x-1/2 w-[440px] bg-surface-primary border border-surface-border rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden">
+        <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 animate-overlay-show" />
+        <Dialog.Content className="fixed top-[18%] left-1/2 -translate-x-1/2 w-[440px] max-w-[92vw] bg-surface-primary border border-surface-border rounded-2xl shadow-xl z-50 flex flex-col overflow-hidden animate-scale-fade">
           <div className="flex items-center justify-between px-5 py-4 border-b border-surface-border">
             <Dialog.Title className="text-base font-semibold text-text-primary">
               Export Document
@@ -91,14 +91,14 @@ export function ExportDialog() {
                 <button
                   key={fmt.value}
                   className={cn(
-                    'flex flex-col items-center gap-2 p-4 rounded-lg border transition-colors text-center',
+                    'flex flex-col items-center gap-2 p-4 rounded-xl border transition-colors text-center',
                     selectedFormat === fmt.value
-                      ? 'border-accent-500 bg-accent-500/5'
+                      ? 'border-accent bg-accent-soft'
                       : 'border-surface-border hover:border-accent-400 hover:bg-surface-hover'
                   )}
                   onClick={() => setSelectedFormat(fmt.value)}
                 >
-                  <span className={selectedFormat === fmt.value ? 'text-accent-500' : 'text-text-tertiary'}>
+                  <span className={selectedFormat === fmt.value ? 'text-accent-fg' : 'text-text-tertiary'}>
                     {fmt.icon}
                   </span>
                   <span className="text-sm font-medium text-text-primary">{fmt.label}</span>
@@ -111,7 +111,7 @@ export function ExportDialog() {
               className={cn(
                 'w-full py-2.5 rounded-lg text-sm font-medium transition-colors',
                 activeDoc
-                  ? 'bg-accent-500 text-white hover:bg-accent-600'
+                  ? 'bg-accent text-white hover:bg-accent-hover'
                   : 'bg-surface-tertiary text-text-tertiary cursor-not-allowed'
               )}
               onClick={handleExport}

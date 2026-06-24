@@ -113,7 +113,7 @@ function MentionComponent({
 }) {
   return (
     <span
-      className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-accent-500/10 text-accent-600 text-sm font-medium cursor-pointer hover:bg-accent-500/20 transition-colors"
+      className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-accent-soft text-accent-fg text-sm font-medium cursor-pointer hover:bg-accent-soft-hover transition-colors"
       contentEditable={false}
       title={`${refType}: ${label}`}
     >

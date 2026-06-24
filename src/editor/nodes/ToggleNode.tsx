@@ -1,7 +1,7 @@
-import React, { useCallback } from 'react';
 import {
   ElementNode,
   $applyNodeReplacement,
+  $getNodeByKey,
   type LexicalNode,
   type NodeKey,
   type SerializedElementNode,
@@ -10,15 +10,18 @@ import {
   type DOMExportOutput,
   type LexicalEditor,
 } from 'lexical';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/cn';
 
 export type SerializedToggleNode = Spread<
   { collapsed: boolean; summary: string },
   SerializedElementNode
 >;
 
+/**
+ * A collapsible section. The FIRST child is the summary line; remaining
+ * children are the collapsible content. Clicking the chevron gutter beside
+ * the summary toggles `collapsed`; CSS hides non-first children when collapsed.
+ * Kept as an ElementNode (children stay natively editable) — no React decorator.
+ */
 export class ToggleNode extends ElementNode {
   __collapsed: boolean;
   __summary: string;
@@ -42,8 +45,7 @@ export class ToggleNode extends ElementNode {
   }
 
   setCollapsed(collapsed: boolean): void {
-    const writable = this.getWritable();
-    writable.__collapsed = collapsed;
+    this.getWritable().__collapsed = collapsed;
   }
 
   getSummary(): string {
@@ -51,18 +53,37 @@ export class ToggleNode extends ElementNode {
   }
 
   setSummary(summary: string): void {
-    const writable = this.getWritable();
-    writable.__summary = summary;
+    this.getWritable().__summary = summary;
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
+  createDOM(_config: EditorConfig, editor: LexicalEditor): HTMLElement {
     const dom = document.createElement('div');
     dom.classList.add('toggle-block');
+    dom.setAttribute('data-collapsed', String(this.__collapsed));
+
+    const key = this.__key;
+    // Toggle when the click lands in the chevron gutter left of the summary.
+    dom.addEventListener('mousedown', (e) => {
+      const first = dom.firstElementChild as HTMLElement | null;
+      if (!first) return;
+      const r = first.getBoundingClientRect();
+      if (e.clientX < r.left && e.clientY >= r.top - 2 && e.clientY <= r.bottom + 2) {
+        e.preventDefault();
+        editor.update(() => {
+          const node = $getNodeByKey(key);
+          if ($isToggleNode(node)) node.setCollapsed(!node.isCollapsed());
+        });
+      }
+    });
+
     return dom;
   }
 
-  updateDOM(prevNode: ToggleNode): boolean {
-    return prevNode.__collapsed !== this.__collapsed || prevNode.__summary !== this.__summary;
+  updateDOM(prevNode: ToggleNode, dom: HTMLElement): boolean {
+    if (prevNode.__collapsed !== this.__collapsed) {
+      dom.setAttribute('data-collapsed', String(this.__collapsed));
+    }
+    return false;
   }
 
   static importJSON(serializedNode: SerializedToggleNode): ToggleNode {
@@ -83,13 +104,11 @@ export class ToggleNode extends ElementNode {
     };
   }
 
-  exportDOM(editor: LexicalEditor): DOMExportOutput {
-    const details = document.createElement('details');
-    if (!this.__collapsed) details.setAttribute('open', '');
-    const summary = document.createElement('summary');
-    summary.textContent = this.__summary;
-    details.appendChild(summary);
-    return { element: details };
+  exportDOM(): DOMExportOutput {
+    const element = document.createElement('div');
+    element.classList.add('toggle-block');
+    element.setAttribute('data-collapsed', String(this.__collapsed));
+    return { element };
   }
 
   canIndent(): boolean {
@@ -103,44 +122,4 @@ export function $createToggleNode(collapsed = false, summary = 'Toggle'): Toggle
 
 export function $isToggleNode(node: LexicalNode | null | undefined): node is ToggleNode {
   return node instanceof ToggleNode;
-}
-
-export function ToggleComponent({
-  collapsed,
-  summary,
-  children,
-  nodeKey,
-}: {
-  collapsed: boolean;
-  summary: string;
-  children: React.ReactNode;
-  nodeKey: NodeKey;
-}) {
-  const [editor] = useLexicalComposerContext();
-
-  const toggleCollapsed = useCallback(() => {
-    editor.update(() => {
-      const node = editor.getEditorState()._nodeMap.get(nodeKey);
-      if (node && node instanceof ToggleNode) {
-        node.setCollapsed(!node.isCollapsed());
-      }
-    });
-  }, [editor, nodeKey]);
-
-  return (
-    <div className="toggle-block my-2 rounded-lg border border-surface-border">
-      <button
-        className="flex items-center gap-2 w-full px-3 py-2 text-left hover:bg-surface-hover transition-colors rounded-t-lg"
-        onClick={toggleCollapsed}
-      >
-        <ChevronRight
-          className={cn('w-4 h-4 transition-transform text-text-tertiary', !collapsed && 'rotate-90')}
-        />
-        <span className="font-medium text-sm">{summary}</span>
-      </button>
-      {!collapsed && (
-        <div className="px-3 pb-3 pl-9">{children}</div>
-      )}
-    </div>
-  );
 }

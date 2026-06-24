@@ -4,6 +4,7 @@ import {
   $getSelection,
   $isRangeSelection,
   $isElementNode,
+  $createParagraphNode,
   FORMAT_TEXT_COMMAND,
   UNDO_COMMAND,
   REDO_COMMAND,
@@ -11,10 +12,15 @@ import {
   OUTDENT_CONTENT_COMMAND,
   type TextFormatType,
 } from 'lexical';
-import { $isHeadingNode } from '@lexical/rich-text';
-import { $isListNode } from '@lexical/list';
-import { $isCodeNode } from '@lexical/code';
-import { $getNearestNodeOfType } from '@lexical/utils';
+import { $isHeadingNode, $createHeadingNode, $createQuoteNode, type HeadingTagType } from '@lexical/rich-text';
+import {
+  $isListNode,
+  INSERT_ORDERED_LIST_COMMAND,
+  INSERT_UNORDERED_LIST_COMMAND,
+} from '@lexical/list';
+import { $isCodeNode, $createCodeNode } from '@lexical/code';
+import { $setBlocksType } from '@lexical/selection';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import {
   Bold,
   Italic,
@@ -27,6 +33,8 @@ import {
   Image,
   Table,
   Minus,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { insertBlock } from '../commands/insertBlock';
@@ -76,7 +84,7 @@ export function TopToolbarPlugin() {
 
   type BlockOption = { value: string; label: string };
   const blockOptions: BlockOption[] = [
-    { value: 'paragraph', label: 'Paragraph' },
+    { value: 'paragraph', label: 'Text' },
     { value: 'h1', label: 'Heading 1' },
     { value: 'h2', label: 'Heading 2' },
     { value: 'h3', label: 'Heading 3' },
@@ -86,24 +94,69 @@ export function TopToolbarPlugin() {
     { value: 'quote', label: 'Quote' },
     { value: 'code', label: 'Code' },
   ];
+  const currentLabel = blockOptions.find((o) => o.value === blockType)?.label ?? 'Text';
+
+  // Real "turn into": convert the current block(s) in place rather than insert.
+  const turnInto = useCallback(
+    (value: string) => {
+      if (value === 'bullet-list') {
+        editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+        return;
+      }
+      if (value === 'numbered-list') {
+        editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+        return;
+      }
+      editor.update(() => {
+        const selection = $getSelection();
+        if (!$isRangeSelection(selection)) return;
+        if (value === 'paragraph') $setBlocksType(selection, () => $createParagraphNode());
+        else if (value === 'quote') $setBlocksType(selection, () => $createQuoteNode());
+        else if (value === 'code') $setBlocksType(selection, () => $createCodeNode());
+        else $setBlocksType(selection, () => $createHeadingNode(value as HeadingTagType));
+      });
+    },
+    [editor]
+  );
 
   return (
     <div className="toolbar flex items-center gap-0.5 px-3 py-1.5 border-b border-surface-border bg-transparent shrink-0 overflow-x-auto">
-      {/* Block type selector */}
-      <select
-        value={blockType}
-        onChange={(e) => {
-          insertBlock(editor, e.target.value as Parameters<typeof insertBlock>[1]);
-        }}
-        className="h-8 px-2.5 text-xs font-medium rounded-lg border border-surface-border bg-surface-primary text-text-secondary outline-none cursor-pointer hover:bg-surface-hover hover:text-text-primary transition-colors"
-        aria-label="Block type"
-      >
-        {blockOptions.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      {/* Turn into — styled dropdown */}
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger asChild>
+          <button
+            className="flex items-center gap-1.5 h-8 pl-2.5 pr-2 min-w-[108px] text-xs font-medium rounded-lg border border-surface-border bg-surface-primary text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+            aria-label="Turn into"
+          >
+            <span className="flex-1 text-left">{currentLabel}</span>
+            <ChevronDown className="w-3.5 h-3.5 shrink-0" />
+          </button>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Portal>
+          <DropdownMenu.Content
+            align="start"
+            sideOffset={4}
+            className="z-[60] min-w-[180px] rounded-lg border border-surface-border bg-surface-primary p-1 shadow-lg data-[state=open]:animate-scale-fade"
+          >
+            <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+              Turn into
+            </div>
+            {blockOptions.map((opt) => (
+              <DropdownMenu.Item
+                key={opt.value}
+                onSelect={() => turnInto(opt.value)}
+                className={cn(
+                  'flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer outline-none data-[highlighted]:bg-surface-hover',
+                  blockType === opt.value ? 'text-accent-fg' : 'text-text-secondary data-[highlighted]:text-text-primary'
+                )}
+              >
+                <span className="flex-1">{opt.label}</span>
+                {blockType === opt.value && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenu.Item>
+            ))}
+          </DropdownMenu.Content>
+        </DropdownMenu.Portal>
+      </DropdownMenu.Root>
 
       <div className="w-px h-5 bg-surface-border mx-1" />
 

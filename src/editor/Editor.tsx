@@ -78,7 +78,15 @@ function EditorInner({ docId, initialState }: EditorProps) {
           <div className="editor-scroller">
             <div ref={onPageRef} className="obelisk-page relative px-14 pt-12 pb-16">
               <TitleBar docId={docId} />
-              <ContentEditable className="obelisk-editor-root outline-none min-h-[45vh]" />
+              <div className="relative">
+                <ContentEditable
+                  className="obelisk-editor-root outline-none min-h-[45vh]"
+                  aria-placeholder="Write something, or press '/' for commands…"
+                  placeholder={
+                    <div className="editor-placeholder">Write something, or press '/' for commands…</div>
+                  }
+                />
+              </div>
             </div>
           </div>
         }

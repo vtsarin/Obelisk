@@ -59,8 +59,8 @@ export function VersionHistory() {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/30 z-50" />
-        <Dialog.Content className="fixed top-[10%] right-4 w-[380px] max-h-[80vh] bg-surface-primary border border-surface-border rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden">
+        <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 animate-overlay-show" />
+        <Dialog.Content className="fixed top-[10%] right-4 w-[380px] max-h-[80vh] bg-surface-primary border border-surface-border rounded-2xl shadow-xl z-50 flex flex-col overflow-hidden animate-scale-fade">
           <div className="flex items-center justify-between px-4 py-3 border-b border-surface-border">
             <div className="flex items-center gap-2">
               <History className="w-4 h-4 text-text-tertiary" />

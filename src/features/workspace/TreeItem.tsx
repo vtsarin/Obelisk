@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useWorkspaceStore } from '@/store/workspaceStore';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import type { DocRecord, FolderRecord } from '@/types/models';
 
 interface TreeItemProps {
@@ -27,6 +28,7 @@ export function TreeItem({
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const activeDocId = useWorkspaceStore((s) => s.activeDocId);
@@ -68,14 +70,9 @@ export function TreeItem({
     setEditing(false);
   };
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const msg = isFolder
-      ? `Delete folder "${label}" and all its contents?`
-      : `Delete "${label}"?`;
-    if (confirm(msg)) {
-      await removeItem(item.id);
-    }
+    setConfirmOpen(true);
   };
 
   const myChildFolders = isFolder
@@ -170,6 +167,20 @@ export function TreeItem({
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title={`Delete "${label || 'Untitled'}"?`}
+        description={
+          isFolder
+            ? 'This folder and everything inside it will be permanently deleted. This cannot be undone.'
+            : 'This document and its version history will be permanently deleted. This cannot be undone.'
+        }
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => removeItem(item.id)}
+      />
     </div>
   );
 }

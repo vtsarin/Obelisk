@@ -1,9 +1,11 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { DraggableBlockPlugin_EXPERIMENTAL } from '@lexical/react/LexicalDraggableBlockPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getRoot,
   $getNodeByKey,
+  $getSelection,
+  $isRangeSelection,
   $createParagraphNode,
   $createNodeSelection,
   $setSelection,
@@ -47,6 +49,23 @@ export function DraggableBlockPlugin({ anchorElem }: { anchorElem: HTMLElement }
   const menuRef = useRef<HTMLDivElement>(null);
   const targetLineRef = useRef<HTMLDivElement>(null);
   const hoveredKeyRef = useRef<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // While the actions dropdown is open, freeze the handle's position so the
+  // plugin's mousemove/mouseleave tracking can't move it (and its anchored
+  // dropdown) offscreen. Inline !important beats the plugin's inline styles.
+  const onMenuOpenChange = useCallback((open: boolean) => {
+    setMenuOpen(open);
+    const el = menuRef.current;
+    if (!el) return;
+    if (open) {
+      el.style.setProperty('opacity', '1', 'important');
+      el.style.setProperty('transform', el.style.transform, 'important');
+    } else {
+      el.style.removeProperty('opacity');
+      el.style.removeProperty('transform');
+    }
+  }, []);
 
   // Mirror the plugin's hover tracking so the "+" and actions menu know the
   // block the handle is currently sitting on.
@@ -73,6 +92,8 @@ export function DraggableBlockPlugin({ anchorElem }: { anchorElem: HTMLElement }
     []
   );
 
+  // Insert an empty paragraph below and open the slash menu by seeding "/",
+  // so the user picks a block type (matches the Notion mental model).
   const addBelow = () =>
     withBlock((key) =>
       editor.update(() => {
@@ -81,6 +102,8 @@ export function DraggableBlockPlugin({ anchorElem }: { anchorElem: HTMLElement }
         const p = $createParagraphNode();
         node.insertAfter(p);
         p.selectStart();
+        const sel = $getSelection();
+        if ($isRangeSelection(sel)) sel.insertText('/');
       })
     );
 
@@ -144,7 +167,7 @@ export function DraggableBlockPlugin({ anchorElem }: { anchorElem: HTMLElement }
             <Plus className="w-4 h-4" />
           </button>
 
-          <DropdownMenu.Root>
+          <DropdownMenu.Root open={menuOpen} onOpenChange={onMenuOpenChange}>
             <DropdownMenu.Trigger asChild>
               <button
                 type="button"
