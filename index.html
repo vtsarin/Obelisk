@@ -2,12 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/obelisk.svg" />
+    <link rel="apple-touch-icon" href="/obelisk.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Obelisk</title>
+    <meta name="theme-color" content="#14b8a6" />
+    <title>Obelisk — block editor</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+    <script>
+      // Apply theme + accent before first paint to avoid a flash.
+      (function () {
+        try {
+          var t = localStorage.getItem('obelisk-theme');
+          if (t !== 'light' && t !== 'dark') {
+            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.setAttribute('data-theme', t);
+          var allowed = ['teal', 'blue', 'violet', 'rose', 'amber'];
+          var a = localStorage.getItem('obelisk-accent');
+          document.documentElement.setAttribute('data-accent', allowed.indexOf(a) !== -1 ? a : 'teal');
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

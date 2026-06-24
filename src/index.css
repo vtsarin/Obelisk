@@ -138,6 +138,69 @@
   --callout-note-fg: #94a3b8;
 }
 
+/* ───────────────────────────────────────────────────────────────────────────
+   Accent presets — user-selectable via [data-accent] on <html>.
+   Teal is the default (the :root/[data-theme] blocks above). Each preset only
+   overrides the SEMANTIC accent roles; the rest of the palette is unchanged.
+   Light values live on [data-accent]; dark theme gets brighter fg/soft tokens.
+   These follow the default blocks so equal-specificity selectors win by order;
+   the [data-theme='dark'][data-accent] pairs add specificity for dark.
+   ─────────────────────────────────────────────────────────────────────────── */
+[data-accent='teal'] {
+  --accent: #14b8a6; --accent-hover: #0d9488; --accent-fg: #0f766e;
+  --accent-soft: rgba(20, 184, 166, 0.12); --accent-soft-hover: rgba(20, 184, 166, 0.18);
+  --accent-ring: rgba(20, 184, 166, 0.55);
+}
+[data-theme='dark'][data-accent='teal'] {
+  --accent: #14b8a6; --accent-hover: #2dd4bf; --accent-fg: #5eead4;
+  --accent-soft: rgba(45, 212, 191, 0.16); --accent-soft-hover: rgba(45, 212, 191, 0.24);
+  --accent-ring: rgba(45, 212, 191, 0.55);
+}
+
+[data-accent='blue'] {
+  --accent: #3b82f6; --accent-hover: #2563eb; --accent-fg: #1d4ed8;
+  --accent-soft: rgba(59, 130, 246, 0.12); --accent-soft-hover: rgba(59, 130, 246, 0.18);
+  --accent-ring: rgba(59, 130, 246, 0.55);
+}
+[data-theme='dark'][data-accent='blue'] {
+  --accent: #3b82f6; --accent-hover: #60a5fa; --accent-fg: #93c5fd;
+  --accent-soft: rgba(96, 165, 250, 0.16); --accent-soft-hover: rgba(96, 165, 250, 0.24);
+  --accent-ring: rgba(96, 165, 250, 0.55);
+}
+
+[data-accent='violet'] {
+  --accent: #8b5cf6; --accent-hover: #7c3aed; --accent-fg: #6d28d9;
+  --accent-soft: rgba(139, 92, 246, 0.12); --accent-soft-hover: rgba(139, 92, 246, 0.18);
+  --accent-ring: rgba(139, 92, 246, 0.55);
+}
+[data-theme='dark'][data-accent='violet'] {
+  --accent: #8b5cf6; --accent-hover: #a78bfa; --accent-fg: #c4b5fd;
+  --accent-soft: rgba(167, 139, 250, 0.16); --accent-soft-hover: rgba(167, 139, 250, 0.24);
+  --accent-ring: rgba(167, 139, 250, 0.55);
+}
+
+[data-accent='rose'] {
+  --accent: #f43f5e; --accent-hover: #e11d48; --accent-fg: #be123c;
+  --accent-soft: rgba(244, 63, 94, 0.12); --accent-soft-hover: rgba(244, 63, 94, 0.18);
+  --accent-ring: rgba(244, 63, 94, 0.55);
+}
+[data-theme='dark'][data-accent='rose'] {
+  --accent: #f43f5e; --accent-hover: #fb7185; --accent-fg: #fda4af;
+  --accent-soft: rgba(251, 113, 133, 0.16); --accent-soft-hover: rgba(251, 113, 133, 0.24);
+  --accent-ring: rgba(251, 113, 133, 0.55);
+}
+
+[data-accent='amber'] {
+  --accent: #f59e0b; --accent-hover: #d97706; --accent-fg: #b45309;
+  --accent-soft: rgba(245, 158, 11, 0.12); --accent-soft-hover: rgba(245, 158, 11, 0.18);
+  --accent-ring: rgba(245, 158, 11, 0.55);
+}
+[data-theme='dark'][data-accent='amber'] {
+  --accent: #f59e0b; --accent-hover: #fbbf24; --accent-fg: #fcd34d;
+  --accent-soft: rgba(251, 191, 36, 0.16); --accent-soft-hover: rgba(251, 191, 36, 0.24);
+  --accent-ring: rgba(251, 191, 36, 0.55);
+}
+
 @layer base {
   html,
   body,

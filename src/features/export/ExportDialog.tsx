@@ -94,7 +94,7 @@ export function ExportDialog() {
                     'flex flex-col items-center gap-2 p-4 rounded-xl border transition-colors text-center',
                     selectedFormat === fmt.value
                       ? 'border-accent bg-accent-soft'
-                      : 'border-surface-border hover:border-accent-400 hover:bg-surface-hover'
+                      : 'border-surface-border hover:border-accent hover:bg-surface-hover'
                   )}
                   onClick={() => setSelectedFormat(fmt.value)}
                 >

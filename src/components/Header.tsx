@@ -1,9 +1,11 @@
 import React from 'react';
-import { Menu, Sun, Moon, Download, List, History, Search } from 'lucide-react';
+import { Menu, Sun, Moon, Download, List, History, Search, PanelTop } from 'lucide-react';
 import { useWorkspaceStore } from '@/store/workspaceStore';
 import { useActiveDoc } from '@/store/selectors';
 import { cn } from '@/lib/cn';
 import { Tooltip } from './Tooltip';
+import { ObeliskMark } from './ObeliskMark';
+import { AccentPicker } from './AccentPicker';
 
 function SaveStatusChip() {
   const status = useWorkspaceStore((s) => s.saveStatus);
@@ -63,6 +65,8 @@ export function Header() {
   const setExportDialogOpen = useWorkspaceStore((s) => s.setExportDialogOpen);
   const toggleOutline = useWorkspaceStore((s) => s.toggleOutline);
   const outlineOpen = useWorkspaceStore((s) => s.outlineOpen);
+  const toggleEditorToolbar = useWorkspaceStore((s) => s.toggleEditorToolbar);
+  const editorToolbarOpen = useWorkspaceStore((s) => s.editorToolbarOpen);
   const setVersionHistoryOpen = useWorkspaceStore((s) => s.setVersionHistoryOpen);
   const activeDoc = useActiveDoc();
 
@@ -72,9 +76,15 @@ export function Header() {
         <Menu className="w-4 h-4" />
       </IconButton>
 
+      <div className="flex items-center gap-1.5 shrink-0 pl-0.5 pr-1">
+        <ObeliskMark className="w-5 h-5" />
+        <span className="text-sm font-semibold text-text-primary tracking-tight hidden sm:inline">Obelisk</span>
+      </div>
+
       <div className="flex-1 flex items-center gap-3 min-w-0">
-        <span className="text-sm font-medium text-text-primary truncate">
-          {activeDoc?.title || 'Obelisk'}
+        <span className="w-px h-4 bg-surface-border shrink-0" />
+        <span className="text-sm font-medium text-text-secondary truncate">
+          {activeDoc?.title || 'Untitled workspace'}
         </span>
         <SaveStatusChip />
       </div>
@@ -96,11 +106,15 @@ export function Header() {
         >
           {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
         </IconButton>
+        <AccentPicker />
         <IconButton onClick={() => setVersionHistoryOpen(true)} label="Version history">
           <History className="w-4 h-4" />
         </IconButton>
         <IconButton onClick={() => setExportDialogOpen(true)} label="Export">
           <Download className="w-4 h-4" />
+        </IconButton>
+        <IconButton onClick={toggleEditorToolbar} label="Toggle formatting toolbar" active={editorToolbarOpen}>
+          <PanelTop className="w-4 h-4" />
         </IconButton>
         <IconButton onClick={toggleOutline} label="Toggle outline" active={outlineOpen}>
           <List className="w-4 h-4" />

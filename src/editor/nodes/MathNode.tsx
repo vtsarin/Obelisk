@@ -158,7 +158,12 @@ const InlineMathComponent = memo(function InlineMathComponent({
           value={localLatex}
           onChange={(e) => setLocalLatex(e.target.value)}
           onBlur={commitLatex}
+          onPaste={(e) => e.stopPropagation()}
+          onCopy={(e) => e.stopPropagation()}
+          onCut={(e) => e.stopPropagation()}
+          onBeforeInput={(e) => e.stopPropagation()}
           onKeyDown={(e) => {
+            e.stopPropagation();
             if (e.key === 'Enter' || e.key === 'Escape') {
               e.preventDefault();
               commitLatex();

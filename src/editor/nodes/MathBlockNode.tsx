@@ -168,7 +168,14 @@ const MathBlockComponent = memo(function MathBlockComponent({
           value={localLatex}
           onChange={(e) => setLocalLatex(e.target.value)}
           onBlur={commitLatex}
+          // Keep clipboard/key events inside the field — otherwise Lexical also
+          // handles the paste and leaks the text as a new paragraph in the doc.
+          onPaste={(e) => e.stopPropagation()}
+          onCopy={(e) => e.stopPropagation()}
+          onCut={(e) => e.stopPropagation()}
+          onBeforeInput={(e) => e.stopPropagation()}
           onKeyDown={(e) => {
+            e.stopPropagation();
             if (e.key === 'Escape') {
               e.preventDefault();
               commitLatex();

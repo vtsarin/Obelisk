@@ -186,7 +186,14 @@ const MermaidComponent = memo(function MermaidComponent({
               className="w-full h-full min-h-[200px] p-3 bg-surface-primary text-sm font-mono resize-none outline-none text-text-primary"
               value={localSource}
               onChange={(e) => handleSourceChange(e.target.value)}
+              // Keep clipboard/key events inside the field so Lexical doesn't
+              // also handle the paste and leak the text into the document.
+              onPaste={(e) => e.stopPropagation()}
+              onCopy={(e) => e.stopPropagation()}
+              onCut={(e) => e.stopPropagation()}
+              onBeforeInput={(e) => e.stopPropagation()}
               onKeyDown={(e) => {
+                e.stopPropagation();
                 if (e.key === 'Escape') {
                   e.preventDefault();
                   setEditing(false);

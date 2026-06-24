@@ -34,15 +34,18 @@ import {
   Table,
   Minus,
   ChevronDown,
+  ChevronUp,
   Check,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { insertBlock } from '../commands/insertBlock';
+import { useWorkspaceStore } from '@/store/workspaceStore';
 
 export function TopToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
   const [blockType, setBlockType] = useState('paragraph');
   const [activeFormats, setActiveFormats] = useState<Set<TextFormatType>>(new Set());
+  const toggleEditorToolbar = useWorkspaceStore((s) => s.toggleEditorToolbar);
 
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {
@@ -249,6 +252,17 @@ export function TopToolbarPlugin() {
         aria-label="Redo"
       >
         <Redo2 className="w-4 h-4 text-text-secondary" />
+      </button>
+
+      {/* Collapse toolbar — the slash menu and selection toolbar cover most of this */}
+      <div className="flex-1 min-w-2" />
+      <button
+        className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-hover transition-colors shrink-0"
+        onClick={toggleEditorToolbar}
+        title="Hide toolbar"
+        aria-label="Hide toolbar"
+      >
+        <ChevronUp className="w-4 h-4 text-text-tertiary" />
       </button>
     </div>
   );

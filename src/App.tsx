@@ -14,6 +14,7 @@ import { ExportDialog } from '@/features/export/ExportDialog';
 import { cn } from '@/lib/cn';
 import type { SerializedEditorState } from 'lexical';
 import { FileText } from 'lucide-react';
+import { ObeliskMark } from '@/components/ObeliskMark';
 
 function EditorArea() {
   const activeDoc = useActiveDoc();
@@ -50,7 +51,7 @@ function EditorArea() {
       <div className="flex-1 flex flex-col items-center justify-center bg-surface-canvas px-6">
         <div className="flex flex-col items-center gap-5 max-w-sm text-center animate-fade-in">
           <div className="w-16 h-16 rounded-2xl bg-surface-primary border border-surface-border shadow-sm flex items-center justify-center">
-            <FileText className="w-7 h-7 text-accent-fg" />
+            <ObeliskMark className="w-9 h-9" />
           </div>
           <div>
             <p className="text-lg font-semibold text-text-primary">Nothing open yet</p>

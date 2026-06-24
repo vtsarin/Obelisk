@@ -27,6 +27,7 @@ import { DraggableBlockPlugin } from './plugins/DraggableBlockPlugin';
 import { StatsPlugin } from './plugins/StatsPlugin';
 import { ActiveEditorPlugin } from './activeEditor';
 import { TitleBar } from '@/components/TitleBar';
+import { useWorkspaceStore } from '@/store/workspaceStore';
 
 interface EditorProps {
   docId: string;
@@ -64,6 +65,7 @@ function RestoreStatePlugin({
 
 function EditorInner({ docId, initialState }: EditorProps) {
   const [anchorElem, setAnchorElem] = useState<HTMLDivElement | null>(null);
+  const editorToolbarOpen = useWorkspaceStore((s) => s.editorToolbarOpen);
 
   const onPageRef = (el: HTMLDivElement | null) => {
     if (el !== null) setAnchorElem(el);
@@ -71,9 +73,11 @@ function EditorInner({ docId, initialState }: EditorProps) {
 
   return (
     <>
-      <div className="sticky top-0 z-20 bg-surface-canvas">
-        <TopToolbarPlugin />
-      </div>
+      {editorToolbarOpen && (
+        <div className="sticky top-0 z-20 bg-surface-canvas">
+          <TopToolbarPlugin />
+        </div>
+      )}
       <RichTextPlugin
         contentEditable={
           <div className="editor-scroller">
@@ -82,10 +86,8 @@ function EditorInner({ docId, initialState }: EditorProps) {
               <div className="relative">
                 <ContentEditable
                   className="obelisk-editor-root outline-none min-h-[45vh]"
-                  aria-placeholder="Write something, or press '/' for commands…"
-                  placeholder={
-                    <div className="editor-placeholder">Write something, or press '/' for commands…</div>
-                  }
+                  aria-placeholder="Type '/' for commands, or just start writing…"
+                  placeholder={() => null}
                 />
               </div>
             </div>
