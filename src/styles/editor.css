@@ -4,7 +4,7 @@
 
 /* The centered paper-like page the document lives on */
 .obelisk-page {
-  max-width: 820px;
+  max-width: 984px;
   margin: 28px auto 40vh;
   background: var(--surface-primary);
   border: 1px solid var(--surface-border);
