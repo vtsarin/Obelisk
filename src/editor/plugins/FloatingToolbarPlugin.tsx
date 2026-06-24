@@ -117,15 +117,17 @@ export function FloatingToolbarPlugin() {
   return createPortal(
     <div
       ref={toolbarRef}
-      className="fixed z-50 flex items-center gap-0.5 bg-surface-primary border border-surface-border rounded-lg shadow-lg px-1 py-1 -translate-x-1/2"
+      className="fixed z-50 flex items-center gap-0.5 bg-surface-primary border border-surface-border rounded-xl shadow-lg px-1 py-1 -translate-x-1/2 animate-scale-fade"
       style={{ top: position.top, left: position.left }}
     >
       {buttons.map(({ icon: Icon, format, label }) => (
         <button
           key={format}
           className={cn(
-            'p-1.5 rounded hover:bg-surface-hover transition-colors',
-            activeFormats.has(format) && 'bg-accent-500/10 text-accent-600'
+            'flex items-center justify-center w-8 h-8 rounded-lg transition-colors',
+            activeFormats.has(format)
+              ? 'bg-accent-soft text-accent-fg'
+              : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
           )}
           onClick={() => toggleFormat(format)}
           title={label}
@@ -139,8 +141,10 @@ export function FloatingToolbarPlugin() {
 
       <button
         className={cn(
-          'p-1.5 rounded hover:bg-surface-hover transition-colors',
-          showLinkInput && 'bg-accent-500/10 text-accent-600'
+          'flex items-center justify-center w-8 h-8 rounded-lg transition-colors',
+          showLinkInput
+            ? 'bg-accent-soft text-accent-fg'
+            : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
         )}
         onClick={insertLink}
         title="Link"

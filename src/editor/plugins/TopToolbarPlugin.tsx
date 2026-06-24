@@ -88,14 +88,14 @@ export function TopToolbarPlugin() {
   ];
 
   return (
-    <div className="toolbar flex items-center gap-0.5 px-3 py-1.5 border-b border-surface-border bg-surface-primary shrink-0 overflow-x-auto">
+    <div className="toolbar flex items-center gap-0.5 px-3 py-1.5 border-b border-surface-border bg-transparent shrink-0 overflow-x-auto">
       {/* Block type selector */}
       <select
         value={blockType}
         onChange={(e) => {
           insertBlock(editor, e.target.value as Parameters<typeof insertBlock>[1]);
         }}
-        className="px-2 py-1 text-xs rounded border border-surface-border bg-surface-primary text-text-primary outline-none cursor-pointer hover:bg-surface-hover"
+        className="h-8 px-2.5 text-xs font-medium rounded-lg border border-surface-border bg-surface-primary text-text-secondary outline-none cursor-pointer hover:bg-surface-hover hover:text-text-primary transition-colors"
         aria-label="Block type"
       >
         {blockOptions.map((opt) => (
@@ -117,8 +117,10 @@ export function TopToolbarPlugin() {
         <button
           key={format}
           className={cn(
-            'p-1.5 rounded hover:bg-surface-hover transition-colors',
-            activeFormats.has(format) && 'bg-accent-500/10 text-accent-600'
+            'flex items-center justify-center w-8 h-8 rounded-lg transition-colors',
+            activeFormats.has(format)
+              ? 'bg-accent-soft text-accent-fg'
+              : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
           )}
           onClick={() => toggleFormat(format)}
           title={label}
@@ -132,7 +134,7 @@ export function TopToolbarPlugin() {
 
       {/* Insert buttons */}
       <button
-        className="p-1.5 rounded hover:bg-surface-hover transition-colors"
+        className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-hover transition-colors"
         onClick={() => insertBlock(editor, 'image')}
         title="Insert Image"
         aria-label="Insert Image"
@@ -140,7 +142,7 @@ export function TopToolbarPlugin() {
         <Image className="w-4 h-4 text-text-secondary" />
       </button>
       <button
-        className="p-1.5 rounded hover:bg-surface-hover transition-colors"
+        className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-hover transition-colors"
         onClick={() => insertBlock(editor, 'table')}
         title="Insert Table"
         aria-label="Insert Table"
@@ -148,7 +150,7 @@ export function TopToolbarPlugin() {
         <Table className="w-4 h-4 text-text-secondary" />
       </button>
       <button
-        className="p-1.5 rounded hover:bg-surface-hover transition-colors"
+        className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-hover transition-colors"
         onClick={() => insertBlock(editor, 'divider')}
         title="Insert Divider"
         aria-label="Insert Divider"
@@ -160,7 +162,7 @@ export function TopToolbarPlugin() {
 
       {/* Indent/Outdent */}
       <button
-        className="p-1.5 rounded hover:bg-surface-hover transition-colors"
+        className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-hover transition-colors"
         onClick={() => editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined)}
         title="Indent"
         aria-label="Indent"
@@ -168,7 +170,7 @@ export function TopToolbarPlugin() {
         <Indent className="w-4 h-4 text-text-secondary" />
       </button>
       <button
-        className="p-1.5 rounded hover:bg-surface-hover transition-colors"
+        className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-hover transition-colors"
         onClick={() => editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined)}
         title="Outdent"
         aria-label="Outdent"
@@ -180,7 +182,7 @@ export function TopToolbarPlugin() {
 
       {/* Undo/Redo */}
       <button
-        className="p-1.5 rounded hover:bg-surface-hover transition-colors"
+        className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-hover transition-colors"
         onClick={() => editor.dispatchCommand(UNDO_COMMAND, undefined)}
         title="Undo (⌘Z)"
         aria-label="Undo"
@@ -188,7 +190,7 @@ export function TopToolbarPlugin() {
         <Undo2 className="w-4 h-4 text-text-secondary" />
       </button>
       <button
-        className="p-1.5 rounded hover:bg-surface-hover transition-colors"
+        className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-hover transition-colors"
         onClick={() => editor.dispatchCommand(REDO_COMMAND, undefined)}
         title="Redo (⌘⇧Z)"
         aria-label="Redo"

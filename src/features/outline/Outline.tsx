@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useOutlineStore } from '@/editor/plugins/OutlinePlugin';
+import { getActiveEditor } from '@/editor/activeEditor';
 import { cn } from '@/lib/cn';
 import { List, Search } from 'lucide-react';
 
@@ -12,29 +13,20 @@ export function Outline() {
     : items;
 
   const scrollToNode = (key: string) => {
-    const element = document.querySelector(`[data-lexical-editor] [data-lexical-node-key="${key}"]`);
-    if (!element) {
-      // Fallback: try to find by content
-      const editorRoot = document.querySelector('[data-lexical-editor]');
-      if (editorRoot) {
-        const headings = editorRoot.querySelectorAll('h1, h2, h3, h4, h5, h6');
-        for (const h of headings) {
-          if ((h as HTMLElement).dataset?.['lexicalNodeKey'] === key) {
-            h.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            return;
-          }
-        }
-      }
-      return;
-    }
+    const editor = getActiveEditor();
+    const element = editor?.getElementByKey(key);
+    if (!element) return;
     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Brief highlight so the jump target is obvious
+    element.classList.add('outline-flash');
+    window.setTimeout(() => element.classList.remove('outline-flash'), 900);
   };
 
   return (
     <div className="h-full flex flex-col bg-surface-secondary border-l border-surface-border">
-      <div className="flex items-center gap-2 px-3 py-3 border-b border-surface-border">
+      <div className="flex items-center gap-2 px-3 h-12 shrink-0 border-b border-surface-border">
         <List className="w-4 h-4 text-text-tertiary" />
-        <span className="text-sm font-semibold text-text-primary">Outline</span>
+        <span className="text-[13px] font-semibold text-text-secondary uppercase tracking-wider">Outline</span>
       </div>
 
       <div className="px-3 py-2">

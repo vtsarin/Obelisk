@@ -167,9 +167,9 @@ export function CommandPalette() {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/30 z-50" />
+        <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 animate-overlay-show" />
         <Dialog.Content
-          className="fixed top-[20%] left-1/2 -translate-x-1/2 w-[560px] max-h-[60vh] bg-surface-primary border border-surface-border rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden"
+          className="fixed top-[18%] left-1/2 -translate-x-1/2 w-[560px] max-w-[92vw] max-h-[60vh] bg-surface-primary border border-surface-border rounded-2xl shadow-xl z-50 flex flex-col overflow-hidden animate-scale-fade"
           onKeyDown={handleKeyDown}
         >
           <div className="flex items-center gap-2 px-4 py-3 border-b border-surface-border">
@@ -205,15 +205,17 @@ export function CommandPalette() {
                       <button
                         key={item.id}
                         className={cn(
-                          'w-full flex items-center gap-3 px-4 py-2 text-left text-sm transition-colors',
+                          'w-full flex items-center gap-3 mx-1 px-3 py-2 rounded-lg text-left text-sm transition-colors',
                           idx === selectedIndex
-                            ? 'bg-accent-500/10 text-accent-600'
+                            ? 'bg-accent-soft text-accent-fg'
                             : 'text-text-primary hover:bg-surface-hover'
                         )}
                         onMouseEnter={() => setSelectedIndex(idx)}
                         onClick={item.action}
                       >
-                        <span className="text-text-tertiary shrink-0">{item.icon}</span>
+                        <span className={cn('shrink-0', idx === selectedIndex ? 'text-accent-fg' : 'text-text-tertiary')}>
+                          {item.icon}
+                        </span>
                         <div className="min-w-0 flex-1">
                           <span className="font-medium">{item.label}</span>
                           <span className="ml-2 text-xs text-text-tertiary">{item.description}</span>
@@ -224,6 +226,12 @@ export function CommandPalette() {
                 </div>
               );
             })}
+          </div>
+
+          <div className="flex items-center gap-4 px-4 py-2 border-t border-surface-border text-[11px] text-text-tertiary">
+            <span className="flex items-center gap-1"><kbd className="rounded bg-surface-tertiary px-1.5 py-0.5">↑↓</kbd> navigate</span>
+            <span className="flex items-center gap-1"><kbd className="rounded bg-surface-tertiary px-1.5 py-0.5">↵</kbd> select</span>
+            <span className="flex items-center gap-1"><kbd className="rounded bg-surface-tertiary px-1.5 py-0.5">esc</kbd> close</span>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

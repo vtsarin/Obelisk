@@ -89,14 +89,19 @@ export function TreeItem({
     <div>
       <div
         className={cn(
-          'group flex items-center gap-1.5 px-2 py-1 rounded-md cursor-pointer text-sm',
-          'hover:bg-surface-hover transition-colors',
-          isActive && 'bg-accent-500/10 text-accent-600 font-medium'
+          'group relative flex items-center gap-1.5 pr-1.5 py-1.5 rounded-md cursor-pointer text-sm',
+          'transition-colors',
+          isActive
+            ? 'bg-accent-soft text-accent-fg font-medium'
+            : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
         )}
-        style={{ paddingLeft: `${depth * 16 + 8}px` }}
+        style={{ paddingLeft: `${depth * 14 + 8}px` }}
         onClick={handleClick}
         onDoubleClick={handleRename}
       >
+        {isActive && (
+          <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-accent" />
+        )}
         {isFolder && (
           <ChevronRight
             className={cn(
@@ -105,16 +110,16 @@ export function TreeItem({
             )}
           />
         )}
-        {!isFolder && <div className="w-3.5" />}
+        {!isFolder && <div className="w-3.5 shrink-0" />}
 
         {isFolder ? (
           expanded ? (
-            <FolderOpen className="w-4 h-4 text-accent-500 shrink-0" />
+            <FolderOpen className="w-4 h-4 text-accent-fg shrink-0" />
           ) : (
-            <Folder className="w-4 h-4 text-accent-500 shrink-0" />
+            <Folder className="w-4 h-4 text-accent-fg shrink-0" />
           )
         ) : (
-          <FileText className="w-4 h-4 text-text-tertiary shrink-0" />
+          <FileText className={cn('w-4 h-4 shrink-0', isActive ? 'text-accent-fg' : 'text-text-tertiary')} />
         )}
 
         {editing ? (

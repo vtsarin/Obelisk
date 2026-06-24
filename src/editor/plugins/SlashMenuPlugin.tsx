@@ -196,26 +196,39 @@ export function SlashMenuPlugin() {
   return createPortal(
     <div
       ref={menuRef}
-      className="fixed z-50 w-72 max-h-80 overflow-y-auto bg-surface-primary border border-surface-border rounded-lg shadow-lg py-1"
+      className="fixed z-50 w-80 max-h-80 overflow-y-auto bg-surface-primary border border-surface-border rounded-xl shadow-lg p-1.5 animate-scale-fade origin-top-left"
       style={{ top: position.top, left: position.left }}
     >
+      <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+        {query ? 'Results' : 'Basic blocks'}
+      </div>
       {results.map((item, index) => {
         const Icon = getIcon(item.icon);
+        const active = index === selectedIndex;
         return (
           <button
             key={item.type}
             className={cn(
-              'w-full flex items-center gap-3 px-3 py-2 text-left text-sm transition-colors',
-              index === selectedIndex
-                ? 'bg-accent-500/10 text-accent-600'
-                : 'text-text-primary hover:bg-surface-hover'
+              'w-full flex items-center gap-3 px-2 py-1.5 text-left rounded-lg transition-colors',
+              active ? 'bg-accent-soft' : 'hover:bg-surface-hover'
             )}
             onMouseEnter={() => setSelectedIndex(index)}
             onClick={() => executeInsert(item)}
           >
-            <Icon className="w-4 h-4 shrink-0 text-text-tertiary" />
+            <span
+              className={cn(
+                'flex items-center justify-center w-8 h-8 rounded-md shrink-0 border',
+                active
+                  ? 'bg-surface-primary border-surface-border text-accent-fg'
+                  : 'bg-surface-secondary border-surface-border text-text-secondary'
+              )}
+            >
+              <Icon className="w-4 h-4" />
+            </span>
             <div className="min-w-0">
-              <div className="font-medium">{item.label}</div>
+              <div className={cn('text-sm font-medium', active ? 'text-accent-fg' : 'text-text-primary')}>
+                {item.label}
+              </div>
               <div className="text-xs text-text-tertiary truncate">{item.description}</div>
             </div>
           </button>

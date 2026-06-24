@@ -5,8 +5,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ───────────────────────────────────────────────────────────────────────────
+   Design tokens
+   Semantic surface/text/accent tokens drive both Tailwind utilities (see
+   tailwind.config.ts) and raw CSS. Light is the source of truth; dark overrides
+   only what must change. Accent ramp is NON-inverted in both themes — dark
+   adds dedicated *-fg / *-soft tokens so accent text stays readable on dark.
+   ─────────────────────────────────────────────────────────────────────────── */
 :root,
 [data-theme='light'] {
+  /* Teal accent ramp (consistent direction in both themes) */
   --accent-50: #f0fdfa;
   --accent-100: #ccfbf1;
   --accent-200: #99f6e4;
@@ -18,32 +26,62 @@
   --accent-800: #115e59;
   --accent-900: #134e4a;
 
-  --surface-primary: #ffffff;
-  --surface-secondary: #f8fafc;
-  --surface-tertiary: #f1f5f9;
-  --surface-hover: #e2e8f0;
-  --surface-border: #e2e8f0;
+  /* Semantic accent roles */
+  --accent: #14b8a6;            /* primary fills (buttons) */
+  --accent-hover: #0d9488;      /* primary fill hover */
+  --accent-fg: #0f766e;         /* accent text/icons on panel surfaces */
+  --accent-soft: rgba(20, 184, 166, 0.12);     /* selected/active tint */
+  --accent-soft-hover: rgba(20, 184, 166, 0.18);
+  --accent-ring: rgba(20, 184, 166, 0.55);      /* focus ring */
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-tertiary: #94a3b8;
+  /* Surfaces — canvas is the app backdrop behind the editor "page" */
+  --surface-canvas: #f3f5f8;
+  --surface-primary: #ffffff;
+  --surface-secondary: #f7f9fb;
+  --surface-tertiary: #eef1f6;
+  --surface-hover: #e9edf3;
+  --surface-active: #e2e7ee;
+  --surface-border: #e7eaef;
+  --surface-border-strong: #d6dbe2;
+
+  /* Text */
+  --text-primary: #1b2230;
+  --text-secondary: #586173;
+  --text-tertiary: #9aa3b2;
   --text-inverse: #ffffff;
 
+  /* Selection highlight in the editor */
+  --text-highlight: #fde68a;
+
+  /* Elevation — layered, low-contrast shadows */
+  --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(16, 24, 40, 0.10), 0 2px 6px -2px rgba(16, 24, 40, 0.06);
+  --shadow-lg: 0 12px 28px -6px rgba(16, 24, 40, 0.16), 0 4px 10px -4px rgba(16, 24, 40, 0.08);
+  --shadow-xl: 0 24px 56px -12px rgba(16, 24, 40, 0.24), 0 8px 20px -8px rgba(16, 24, 40, 0.10);
+  --shadow-page: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 28px -12px rgba(16, 24, 40, 0.12);
+
+  /* Callouts */
   --callout-info-bg: #eff6ff;
   --callout-info-border: #3b82f6;
+  --callout-info-fg: #1d4ed8;
   --callout-warning-bg: #fffbeb;
   --callout-warning-border: #f59e0b;
+  --callout-warning-fg: #b45309;
   --callout-tip-bg: #f0fdf4;
   --callout-tip-border: #22c55e;
+  --callout-tip-fg: #15803d;
   --callout-danger-bg: #fef2f2;
   --callout-danger-border: #ef4444;
+  --callout-danger-fg: #b91c1c;
   --callout-note-bg: #f8fafc;
   --callout-note-border: #64748b;
+  --callout-note-fg: #475569;
 }
 
 [data-theme='dark'] {
   --accent-50: #042f2e;
-  --accent-100: #134e4a;
+  --accent-100: #0b3b39;
   --accent-200: #115e59;
   --accent-300: #0f766e;
   --accent-400: #0d9488;
@@ -53,49 +91,96 @@
   --accent-800: #99f6e4;
   --accent-900: #ccfbf1;
 
-  --surface-primary: #0f172a;
-  --surface-secondary: #1e293b;
-  --surface-tertiary: #334155;
-  --surface-hover: #475569;
-  --surface-border: #334155;
+  --accent: #14b8a6;
+  --accent-hover: #2dd4bf;
+  --accent-fg: #5eead4;
+  --accent-soft: rgba(45, 212, 191, 0.16);
+  --accent-soft-hover: rgba(45, 212, 191, 0.24);
+  --accent-ring: rgba(45, 212, 191, 0.55);
 
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-tertiary: #64748b;
-  --text-inverse: #0f172a;
+  --surface-canvas: #0b1120;
+  --surface-primary: #131a29;
+  --surface-secondary: #0f1626;
+  --surface-tertiary: #1c2436;
+  --surface-hover: #232c40;
+  --surface-active: #2a344b;
+  --surface-border: #232c3e;
+  --surface-border-strong: #313c52;
 
-  --callout-info-bg: #1e3a5f;
+  --text-primary: #e9edf4;
+  --text-secondary: #9aa6ba;
+  --text-tertiary: #6b7689;
+  --text-inverse: #0b1120;
+
+  --text-highlight: #b45309;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.55), 0 2px 6px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 28px -6px rgba(0, 0, 0, 0.6), 0 4px 10px -4px rgba(0, 0, 0, 0.45);
+  --shadow-xl: 0 24px 56px -12px rgba(0, 0, 0, 0.7), 0 8px 20px -8px rgba(0, 0, 0, 0.5);
+  --shadow-page: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -12px rgba(0, 0, 0, 0.55);
+
+  --callout-info-bg: #15233b;
   --callout-info-border: #3b82f6;
-  --callout-warning-bg: #422006;
+  --callout-info-fg: #93c5fd;
+  --callout-warning-bg: #2e2410;
   --callout-warning-border: #f59e0b;
-  --callout-tip-bg: #052e16;
+  --callout-warning-fg: #fcd34d;
+  --callout-tip-bg: #102a1c;
   --callout-tip-border: #22c55e;
-  --callout-danger-bg: #450a0a;
+  --callout-tip-fg: #86efac;
+  --callout-danger-bg: #2e1414;
   --callout-danger-border: #ef4444;
-  --callout-note-bg: #1e293b;
+  --callout-danger-fg: #fca5a5;
+  --callout-note-bg: #1a2233;
   --callout-note-border: #64748b;
+  --callout-note-fg: #94a3b8;
 }
 
 @layer base {
-
   html,
   body,
   #root {
     @apply h-full m-0 p-0;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     color: var(--text-primary);
-    background: var(--surface-primary);
+    background: var(--surface-canvas);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   * {
     @apply border-surface-border;
   }
+
+  /* One consistent, visible focus treatment for keyboard users */
+  :focus {
+    outline: none;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [role='button']:focus-visible,
+  [tabindex]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--surface-primary), 0 0 0 4px var(--accent-ring);
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background: var(--accent-soft-hover);
+  }
 }
 
-/* Scrollbar styling */
+/* Scrollbars — thin, unobtrusive, theme-aware */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -103,10 +188,19 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--text-tertiary);
-  border-radius: 3px;
+  background: var(--surface-border-strong);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+  background: var(--text-tertiary);
+  background-clip: padding-box;
+  border: 3px solid transparent;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-border-strong) transparent;
 }

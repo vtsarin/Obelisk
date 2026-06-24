@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -22,6 +22,10 @@ import { IndentRulesPlugin } from './plugins/IndentRulesPlugin';
 import { OutlinePlugin } from './plugins/OutlinePlugin';
 import { BreadcrumbPlugin } from './plugins/BreadcrumbPlugin';
 import { ExportBridgePlugin } from './plugins/ExportBridgePlugin';
+import { DraggableBlockPlugin } from './plugins/DraggableBlockPlugin';
+import { StatsPlugin } from './plugins/StatsPlugin';
+import { ActiveEditorPlugin } from './activeEditor';
+import { TitleBar } from '@/components/TitleBar';
 
 interface EditorProps {
   docId: string;
@@ -58,13 +62,24 @@ function RestoreStatePlugin({
 }
 
 function EditorInner({ docId, initialState }: EditorProps) {
+  const [anchorElem, setAnchorElem] = useState<HTMLDivElement | null>(null);
+
+  const onPageRef = (el: HTMLDivElement | null) => {
+    if (el !== null) setAnchorElem(el);
+  };
+
   return (
     <>
-      <TopToolbarPlugin />
+      <div className="sticky top-0 z-20 bg-surface-canvas">
+        <TopToolbarPlugin />
+      </div>
       <RichTextPlugin
         contentEditable={
           <div className="editor-scroller">
-            <ContentEditable className="obelisk-editor-root outline-none min-h-[500px] px-12 py-8" />
+            <div ref={onPageRef} className="obelisk-page relative px-14 pt-12 pb-16">
+              <TitleBar docId={docId} />
+              <ContentEditable className="obelisk-editor-root outline-none min-h-[45vh]" />
+            </div>
           </div>
         }
         ErrorBoundary={LexicalErrorBoundary}
@@ -82,7 +97,10 @@ function EditorInner({ docId, initialState }: EditorProps) {
       <IndentRulesPlugin />
       <OutlinePlugin />
       <BreadcrumbPlugin />
+      <StatsPlugin />
+      <ActiveEditorPlugin />
       <ExportBridgePlugin docId={docId} />
+      {anchorElem && <DraggableBlockPlugin anchorElem={anchorElem} />}
     </>
   );
 }

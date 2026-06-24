@@ -17,15 +17,20 @@ export function AutoSavePlugin({ docId }: { docId: string }) {
       setSaveStatus('saving');
       const state = editor.getEditorState().toJSON();
       const plainText = editor.getEditorState().read(() => $getRoot().getTextContent());
-      const title = editor.getEditorState().read(() => {
-        const root = $getRoot();
-        const first = root.getFirstChild();
-        if (first) {
-          const text = first.getTextContent().trim();
-          if (text) return text;
-        }
-        return 'Untitled';
-      });
+      // Title is owned by the TitleBar field (DocRecord.title). Preserve it here
+      // and only fall back to a body-derived title if it was never set.
+      const stored = useWorkspaceStore
+        .getState()
+        .docs.find((d) => d.id === docId)?.title?.trim();
+      const title =
+        stored && stored !== 'Untitled'
+          ? stored
+          : editor.getEditorState().read(() => {
+              const root = $getRoot();
+              const first = root.getFirstChild();
+              const text = first?.getTextContent().trim();
+              return text || 'Untitled';
+            });
 
       await workspaceStore.saveContent(docId, state, plainText, title);
       await workspaceStore.snapshot(docId, state);

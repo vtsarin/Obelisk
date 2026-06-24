@@ -57,8 +57,8 @@ export function WorkspaceSearch() {
 
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/30 z-50" />
-          <Dialog.Content className="fixed top-[20%] left-1/2 -translate-x-1/2 w-[500px] max-h-[50vh] bg-surface-primary border border-surface-border rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden">
+          <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 animate-overlay-show" />
+          <Dialog.Content className="fixed top-[18%] left-1/2 -translate-x-1/2 w-[500px] max-w-[92vw] max-h-[50vh] bg-surface-primary border border-surface-border rounded-2xl shadow-xl z-50 flex flex-col overflow-hidden animate-scale-fade">
             <div className="flex items-center gap-2 px-4 py-3 border-b border-surface-border">
               <Search className="w-4 h-4 text-text-tertiary" />
               <Dialog.Title className="sr-only">Search Documents</Dialog.Title>
@@ -94,9 +94,9 @@ export function WorkspaceSearch() {
                 <button
                   key={record.docId}
                   className={cn(
-                    'w-full flex items-center gap-3 px-4 py-2 text-left text-sm transition-colors',
+                    'w-full flex items-center gap-3 mx-1 px-3 py-2 rounded-lg text-left text-sm transition-colors',
                     index === selectedIndex
-                      ? 'bg-accent-500/10 text-accent-600'
+                      ? 'bg-accent-soft text-accent-fg'
                       : 'text-text-primary hover:bg-surface-hover'
                   )}
                   onMouseEnter={() => setSelectedIndex(index)}

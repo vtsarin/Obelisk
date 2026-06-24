@@ -1,9 +1,10 @@
 import React from 'react';
-import { Plus, FolderPlus } from 'lucide-react';
+import { Plus, FolderPlus, FileText } from 'lucide-react';
 import { useWorkspaceStore } from '@/store/workspaceStore';
 import { useRootItems } from '@/store/selectors';
 import { TreeItem } from './TreeItem';
 import { WorkspaceSearch } from './WorkspaceSearch';
+import { Tooltip } from '@/components/Tooltip';
 
 export function Sidebar() {
   const createDoc = useWorkspaceStore((s) => s.createDoc);
@@ -13,52 +14,62 @@ export function Sidebar() {
   return (
     <div className="h-full flex flex-col bg-surface-secondary border-r border-surface-border">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-3 border-b border-surface-border">
-        <span className="text-sm font-semibold text-text-primary tracking-tight">
+      <div className="flex items-center justify-between px-3 h-12 shrink-0 border-b border-surface-border">
+        <span className="text-[13px] font-semibold text-text-secondary uppercase tracking-wider">
           Workspace
         </span>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => createDoc()}
-            className="p-1 rounded hover:bg-surface-hover transition-colors"
-            title="New document"
-          >
-            <Plus className="w-4 h-4 text-text-secondary" />
-          </button>
-          <button
-            onClick={() => createFolder()}
-            className="p-1 rounded hover:bg-surface-hover transition-colors"
-            title="New folder"
-          >
-            <FolderPlus className="w-4 h-4 text-text-secondary" />
-          </button>
+        <div className="flex items-center gap-0.5">
+          <Tooltip content="New document" side="bottom">
+            <button
+              onClick={() => createDoc()}
+              aria-label="New document"
+              className="flex items-center justify-center w-7 h-7 rounded-md text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </Tooltip>
+          <Tooltip content="New folder" side="bottom">
+            <button
+              onClick={() => createFolder()}
+              aria-label="New folder"
+              className="flex items-center justify-center w-7 h-7 rounded-md text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+            >
+              <FolderPlus className="w-4 h-4" />
+            </button>
+          </Tooltip>
         </div>
       </div>
 
       {/* Search */}
-      <div className="px-3 py-2">
+      <div className="px-3 py-2.5">
         <WorkspaceSearch />
       </div>
 
       {/* Tree */}
-      <div className="flex-1 overflow-y-auto px-1 py-1">
-        {folders.length === 0 && docs.length === 0 && (
-          <div className="px-3 py-8 text-center text-sm text-text-tertiary">
-            <p>No documents yet.</p>
+      <div className="flex-1 overflow-y-auto px-2 pb-2">
+        {folders.length === 0 && docs.length === 0 ? (
+          <div className="px-3 py-10 text-center">
+            <div className="mx-auto w-10 h-10 rounded-xl bg-surface-tertiary flex items-center justify-center mb-3">
+              <FileText className="w-5 h-5 text-text-tertiary" />
+            </div>
+            <p className="text-sm text-text-secondary">No documents yet</p>
             <button
               onClick={() => createDoc()}
-              className="mt-2 text-accent-500 hover:text-accent-600 font-medium"
+              className="mt-2 text-sm text-accent-fg hover:underline font-medium"
             >
               Create your first doc
             </button>
           </div>
+        ) : (
+          <div className="space-y-px">
+            {folders.map((f) => (
+              <TreeItem key={f.id} item={f} />
+            ))}
+            {docs.map((d) => (
+              <TreeItem key={d.id} item={d} />
+            ))}
+          </div>
         )}
-        {folders.map((f) => (
-          <TreeItem key={f.id} item={f} />
-        ))}
-        {docs.map((d) => (
-          <TreeItem key={d.id} item={d} />
-        ))}
       </div>
     </div>
   );
