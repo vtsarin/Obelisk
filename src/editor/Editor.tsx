@@ -14,6 +14,7 @@ import { editorTheme } from './theme';
 import { registeredNodes } from './nodes';
 import { AutoSavePlugin } from './plugins/AutoSavePlugin';
 import { SlashMenuPlugin } from './plugins/SlashMenuPlugin';
+import { MentionMenuPlugin } from './plugins/MentionMenuPlugin';
 import { FloatingToolbarPlugin } from './plugins/FloatingToolbarPlugin';
 import { TopToolbarPlugin } from './plugins/TopToolbarPlugin';
 import { ImagePastePlugin } from './plugins/ImagePastePlugin';
@@ -99,6 +100,7 @@ function EditorInner({ docId, initialState }: EditorProps) {
       <RestoreStatePlugin docId={docId} initialState={initialState} />
       <AutoSavePlugin docId={docId} />
       <SlashMenuPlugin />
+      <MentionMenuPlugin />
       <FloatingToolbarPlugin />
       <ImagePastePlugin docId={docId} />
       <MarkdownShortcutsPlugin />

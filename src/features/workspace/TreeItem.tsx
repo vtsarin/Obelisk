@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/cn';
 import { useWorkspaceStore } from '@/store/workspaceStore';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { computeDrop, type DropPosition } from '@/lib/tree';
 import type { DocRecord, FolderRecord } from '@/types/models';
 
 interface TreeItemProps {
@@ -29,14 +30,18 @@ export function TreeItem({
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [dropPos, setDropPos] = useState<DropPosition | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const activeDocId = useWorkspaceStore((s) => s.activeDocId);
   const setActiveDoc = useWorkspaceStore((s) => s.setActiveDoc);
   const renameItem = useWorkspaceStore((s) => s.renameItem);
   const removeItem = useWorkspaceStore((s) => s.removeItem);
+  const moveItem = useWorkspaceStore((s) => s.moveItem);
   const folders = useWorkspaceStore((s) => s.folders);
   const docs = useWorkspaceStore((s) => s.docs);
+  const draggingId = useWorkspaceStore((s) => s.draggingId);
+  const setDraggingId = useWorkspaceStore((s) => s.setDraggingId);
 
   const isFolder = item.type === 'folder';
   const isActive = !isFolder && activeDocId === item.id;
@@ -75,6 +80,62 @@ export function TreeItem({
     setConfirmOpen(true);
   };
 
+  // ── Drag & drop reorder / move ──
+  const findDragged = (id: string) =>
+    folders.find((f) => f.id === id) ?? docs.find((d) => d.id === id);
+
+  const positionFromEvent = (e: React.DragEvent<HTMLDivElement>): DropPosition => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const h = rect.height;
+    if (isFolder) {
+      if (y < h * 0.25) return 'before';
+      if (y > h * 0.75) return 'after';
+      return 'inside';
+    }
+    return y < h * 0.5 ? 'before' : 'after';
+  };
+
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', item.id);
+    setDraggingId(item.id);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!draggingId || draggingId === item.id) return;
+    const dragged = findDragged(draggingId);
+    if (!dragged) return;
+    const pos = positionFromEvent(e);
+    if (!computeDrop(dragged, item, pos, folders, docs)) {
+      setDropPos(null);
+      e.dataTransfer.dropEffect = 'none';
+      return;
+    }
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDropPos(pos);
+  };
+
+  const handleDragLeave = () => setDropPos(null);
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDropPos(null);
+    const dragId = e.dataTransfer.getData('text/plain') || draggingId;
+    if (!dragId || dragId === item.id) return;
+    const dragged = findDragged(dragId);
+    if (!dragged) return;
+    const pos = positionFromEvent(e);
+    const result = computeDrop(dragged, item, pos, folders, docs);
+    if (!result) return;
+    moveItem(dragId, result.parentId, result.order);
+    setDraggingId(null);
+    if (pos === 'inside') setExpanded(true);
+  };
+
   const myChildFolders = isFolder
     ? folders.filter((f) => f.parentId === item.id).sort((a, b) => a.order - b.order)
     : [];
@@ -90,12 +151,29 @@ export function TreeItem({
           'transition-colors',
           isActive
             ? 'bg-accent-soft text-accent-fg font-medium'
-            : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
+            : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
+          dropPos === 'inside' && 'ring-2 ring-inset ring-accent bg-accent-soft',
+          draggingId === item.id && 'opacity-40'
         )}
         style={{ paddingLeft: `${depth * 14 + 8}px` }}
+        draggable={!editing}
         onClick={handleClick}
         onDoubleClick={handleRename}
+        onDragStart={handleDragStart}
+        onDragEnd={() => {
+          setDraggingId(null);
+          setDropPos(null);
+        }}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
       >
+        {dropPos === 'before' && (
+          <span className="absolute left-1 right-1 -top-px h-0.5 rounded-full bg-accent pointer-events-none" />
+        )}
+        {dropPos === 'after' && (
+          <span className="absolute left-1 right-1 -bottom-px h-0.5 rounded-full bg-accent pointer-events-none" />
+        )}
         {isActive && (
           <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-accent" />
         )}

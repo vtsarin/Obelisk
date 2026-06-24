@@ -11,7 +11,6 @@ import {
   $getNodeByKey,
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 
 export type SerializedMathNode = Spread<
   { latex: string },
@@ -97,7 +96,7 @@ const InlineMathComponent = memo(function InlineMathComponent({
   nodeKey: NodeKey;
 }) {
   const [editor] = useLexicalComposerContext();
-  const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
+  const [editing, setEditing] = useState(false);
   const [localLatex, setLocalLatex] = useState(latex);
   const [renderedHtml, setRenderedHtml] = useState('');
   const [renderError, setRenderError] = useState<string | null>(null);
@@ -109,12 +108,12 @@ const InlineMathComponent = memo(function InlineMathComponent({
 
   // Render KaTeX
   useEffect(() => {
-    if (isSelected) return; // Don't render while editing
+    if (editing) return; // Don't render while editing
     let cancelled = false;
     (async () => {
       try {
         const katex = (await import('katex')).default;
-        const html = katex.renderToString(latex, {
+        const html = katex.renderToString(latex || '', {
           throwOnError: false,
           displayMode: false,
         });
@@ -129,13 +128,14 @@ const InlineMathComponent = memo(function InlineMathComponent({
       }
     })();
     return () => { cancelled = true; };
-  }, [latex, isSelected]);
+  }, [latex, editing]);
 
   useEffect(() => {
-    if (isSelected && inputRef.current) {
+    if (editing && inputRef.current) {
       inputRef.current.focus();
+      inputRef.current.select();
     }
-  }, [isSelected]);
+  }, [editing]);
 
   const commitLatex = useCallback(() => {
     editor.update(() => {
@@ -144,10 +144,10 @@ const InlineMathComponent = memo(function InlineMathComponent({
         node.setLatex(localLatex);
       }
     });
-    clearSelection();
-  }, [editor, nodeKey, localLatex, clearSelection]);
+    setEditing(false);
+  }, [editor, nodeKey, localLatex]);
 
-  if (isSelected) {
+  if (editing) {
     return (
       <span className="inline-flex items-center bg-accent-soft rounded px-1" contentEditable={false}>
         <span className="text-accent-fg text-xs mr-0.5">$</span>
@@ -174,12 +174,10 @@ const InlineMathComponent = memo(function InlineMathComponent({
     <span
       className="cursor-pointer hover:bg-accent-soft rounded px-0.5 inline"
       contentEditable={false}
-      onClick={() => {
-        clearSelection();
-        setSelected(true);
-      }}
+      onClick={() => setEditing(true)}
       role="button"
       tabIndex={-1}
+      title="Click to edit"
     >
       {renderError ? (
         <span className="text-red-500 text-sm font-mono">{latex || '?'}</span>

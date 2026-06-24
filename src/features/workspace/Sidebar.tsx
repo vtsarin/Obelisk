@@ -9,7 +9,32 @@ import { Tooltip } from '@/components/Tooltip';
 export function Sidebar() {
   const createDoc = useWorkspaceStore((s) => s.createDoc);
   const createFolder = useWorkspaceStore((s) => s.createFolder);
+  const moveItem = useWorkspaceStore((s) => s.moveItem);
+  const draggingId = useWorkspaceStore((s) => s.draggingId);
+  const setDraggingId = useWorkspaceStore((s) => s.setDraggingId);
+  const allFolders = useWorkspaceStore((s) => s.folders);
+  const allDocs = useWorkspaceStore((s) => s.docs);
   const { folders, docs } = useRootItems();
+
+  // Dropping on empty tree space moves an item to the workspace root.
+  const handleRootDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (draggingId) e.preventDefault();
+  };
+
+  const handleRootDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const id = e.dataTransfer.getData('text/plain') || draggingId;
+    if (!id) return;
+    const dragged = allFolders.find((f) => f.id === id) ?? allDocs.find((d) => d.id === id);
+    if (!dragged || dragged.parentId === null) {
+      setDraggingId(null);
+      return;
+    }
+    const sibs = (dragged.type === 'folder' ? allFolders : allDocs).filter((x) => x.parentId === null);
+    const order = sibs.reduce((m, s) => Math.max(m, s.order), -1) + 1;
+    moveItem(id, null, order);
+    setDraggingId(null);
+  };
 
   return (
     <div className="h-full flex flex-col bg-surface-secondary border-r border-surface-border">
@@ -46,7 +71,11 @@ export function Sidebar() {
       </div>
 
       {/* Tree */}
-      <div className="flex-1 overflow-y-auto px-2 pb-2">
+      <div
+        className="flex-1 overflow-y-auto px-2 pb-2"
+        onDragOver={handleRootDragOver}
+        onDrop={handleRootDrop}
+      >
         {folders.length === 0 && docs.length === 0 ? (
           <div className="px-3 py-10 text-center">
             <div className="mx-auto w-10 h-10 rounded-xl bg-surface-tertiary flex items-center justify-center mb-3">

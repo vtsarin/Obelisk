@@ -11,7 +11,7 @@ import {
   $getNodeByKey,
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
+import { Pencil } from 'lucide-react';
 
 export type SerializedMermaidNode = Spread<
   { source: string },
@@ -99,12 +99,13 @@ const MermaidComponent = memo(function MermaidComponent({
   nodeKey: NodeKey;
 }) {
   const [editor] = useLexicalComposerContext();
-  const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
+  const [editing, setEditing] = useState(false);
   const [svgHtml, setSvgHtml] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [localSource, setLocalSource] = useState(source);
   const lastGoodSvg = useRef<string>('');
   const renderTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Render mermaid diagram
   useEffect(() => {
@@ -144,6 +145,12 @@ const MermaidComponent = memo(function MermaidComponent({
     setLocalSource(source);
   }, [source]);
 
+  useEffect(() => {
+    if (editing && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [editing]);
+
   const handleSourceChange = useCallback(
     (newSource: string) => {
       setLocalSource(newSource);
@@ -157,21 +164,40 @@ const MermaidComponent = memo(function MermaidComponent({
     [editor, nodeKey]
   );
 
-  if (isSelected) {
+  if (editing) {
     return (
-      <div className="my-4 border border-accent-500 rounded-lg overflow-hidden" contentEditable={false}>
+      <div className="my-4 border border-accent rounded-lg overflow-hidden" contentEditable={false}>
+        <div className="flex items-center justify-between px-3 py-1.5 bg-surface-secondary border-b border-surface-border">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+            Mermaid · source &amp; preview
+          </span>
+          <button
+            className="text-xs font-medium text-accent-fg hover:underline"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => setEditing(false)}
+          >
+            Done
+          </button>
+        </div>
         <div className="flex min-h-[200px]">
           <div className="w-1/2 border-r border-surface-border">
             <textarea
-              className="w-full h-full min-h-[200px] p-3 bg-surface-secondary text-sm font-mono resize-none outline-none text-text-primary"
+              ref={textareaRef}
+              className="w-full h-full min-h-[200px] p-3 bg-surface-primary text-sm font-mono resize-none outline-none text-text-primary"
               value={localSource}
               onChange={(e) => handleSourceChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  e.preventDefault();
+                  setEditing(false);
+                }
+              }}
               spellCheck={false}
             />
           </div>
-          <div className="w-1/2 p-3 flex items-center justify-center bg-surface-primary overflow-auto">
+          <div className="relative w-1/2 p-3 flex items-center justify-center bg-surface-primary overflow-auto">
             {error && (
-              <div className="absolute top-0 left-0 right-0 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs px-3 py-1 z-10">
+              <div className="absolute top-0 left-0 right-0 bg-red-500/10 text-red-500 text-xs px-3 py-1 z-10">
                 {error}
               </div>
             )}
@@ -187,13 +213,15 @@ const MermaidComponent = memo(function MermaidComponent({
 
   return (
     <div
-      className="my-4 p-4 rounded-lg border border-surface-border bg-surface-primary cursor-pointer hover:border-accent-400 transition-colors flex items-center justify-center min-h-[100px]"
+      className="group relative my-4 p-4 rounded-lg border border-surface-border bg-surface-primary cursor-pointer hover:border-accent transition-colors flex items-center justify-center min-h-[100px]"
       contentEditable={false}
-      onClick={() => {
-        clearSelection();
-        setSelected(true);
-      }}
+      role="button"
+      title="Click to edit"
+      onClick={() => setEditing(true)}
     >
+      <span className="absolute top-1.5 right-2 flex items-center gap-1 rounded-md border border-surface-border bg-surface-primary px-1.5 py-0.5 text-[11px] font-medium text-text-tertiary opacity-0 group-hover:opacity-100 transition-opacity">
+        <Pencil className="w-3 h-3" /> Edit
+      </span>
       {error && !svgHtml && (
         <div className="text-sm text-red-500">{error}</div>
       )}
@@ -203,7 +231,7 @@ const MermaidComponent = memo(function MermaidComponent({
           dangerouslySetInnerHTML={{ __html: svgHtml }}
         />
       ) : (
-        <span className="text-sm text-text-tertiary">Mermaid diagram</span>
+        <span className="text-sm text-text-tertiary">Mermaid diagram — click to edit</span>
       )}
     </div>
   );

@@ -10,6 +10,7 @@ import {
   type LexicalEditor,
 } from 'lexical';
 import { AtSign } from 'lucide-react';
+import { useWorkspaceStore } from '@/store/workspaceStore';
 
 export type MentionRefType = 'doc' | 'user' | 'block';
 
@@ -111,11 +112,21 @@ function MentionComponent({
   refId: string;
   label: string;
 }) {
+  const canNavigate = refType === 'doc' && refId !== '';
+
+  const handleClick = () => {
+    if (canNavigate) {
+      useWorkspaceStore.getState().setActiveDoc(refId);
+    }
+  };
+
   return (
     <span
       className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-accent-soft text-accent-fg text-sm font-medium cursor-pointer hover:bg-accent-soft-hover transition-colors"
       contentEditable={false}
-      title={`${refType}: ${label}`}
+      title={canNavigate ? `Open ${label}` : `${refType}: ${label}`}
+      role={canNavigate ? 'link' : undefined}
+      onClick={handleClick}
     >
       <AtSign className="w-3 h-3" />
       {label}

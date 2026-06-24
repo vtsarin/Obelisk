@@ -70,7 +70,7 @@ export function CommandPalette() {
     items.push({
       id: 'action-toggle-theme',
       label: `Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`,
-      description: 'Toggle theme',
+      description: 'Change color theme',
       icon: theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />,
       group: 'actions',
       action: () => { setTheme(theme === 'light' ? 'dark' : 'light'); setOpen(false); },
@@ -112,8 +112,12 @@ export function CommandPalette() {
   }, [docs, folders, theme, setActiveDoc, setOpen, createDoc, createFolder, setTheme, setExportDialogOpen, setVersionHistoryOpen]);
 
   const fuse = useMemo(() => new Fuse(commands, {
-    keys: ['label', 'description'],
+    keys: [
+      { name: 'label', weight: 0.8 },
+      { name: 'description', weight: 0.2 },
+    ],
     threshold: 0.4,
+    ignoreLocation: true,
   }), [commands]);
 
   const results = useMemo(() => {

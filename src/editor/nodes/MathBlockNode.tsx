@@ -11,7 +11,7 @@ import {
   $getNodeByKey,
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
+import { Pencil } from 'lucide-react';
 
 export type SerializedMathBlockNode = Spread<
   { latex: string },
@@ -97,7 +97,7 @@ const MathBlockComponent = memo(function MathBlockComponent({
   nodeKey: NodeKey;
 }) {
   const [editor] = useLexicalComposerContext();
-  const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
+  const [editing, setEditing] = useState(false);
   const [localLatex, setLocalLatex] = useState(latex);
   const [renderedHtml, setRenderedHtml] = useState('');
   const [renderError, setRenderError] = useState<string | null>(null);
@@ -108,12 +108,12 @@ const MathBlockComponent = memo(function MathBlockComponent({
   }, [latex]);
 
   useEffect(() => {
-    if (isSelected) return;
+    if (editing) return;
     let cancelled = false;
     (async () => {
       try {
         const katex = (await import('katex')).default;
-        const html = katex.renderToString(latex, {
+        const html = katex.renderToString(latex || '', {
           throwOnError: false,
           displayMode: true,
         });
@@ -128,13 +128,14 @@ const MathBlockComponent = memo(function MathBlockComponent({
       }
     })();
     return () => { cancelled = true; };
-  }, [latex, isSelected]);
+  }, [latex, editing]);
 
   useEffect(() => {
-    if (isSelected && textareaRef.current) {
+    if (editing && textareaRef.current) {
       textareaRef.current.focus();
+      textareaRef.current.select();
     }
-  }, [isSelected]);
+  }, [editing]);
 
   const commitLatex = useCallback(() => {
     editor.update(() => {
@@ -143,15 +144,27 @@ const MathBlockComponent = memo(function MathBlockComponent({
         node.setLatex(localLatex);
       }
     });
-    clearSelection();
-  }, [editor, nodeKey, localLatex, clearSelection]);
+    setEditing(false);
+  }, [editor, nodeKey, localLatex]);
 
-  if (isSelected) {
+  if (editing) {
     return (
-      <div className="my-4 border border-accent-500 rounded-lg overflow-hidden" contentEditable={false}>
+      <div className="my-4 border border-accent rounded-lg overflow-hidden" contentEditable={false}>
+        <div className="flex items-center justify-between px-3 py-1.5 bg-surface-secondary border-b border-surface-border">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+            LaTeX · display mode
+          </span>
+          <button
+            className="text-xs font-medium text-accent-fg hover:underline"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={commitLatex}
+          >
+            Done
+          </button>
+        </div>
         <textarea
           ref={textareaRef}
-          className="w-full min-h-[80px] p-3 bg-surface-secondary font-mono text-sm resize-y outline-none text-text-primary"
+          className="w-full min-h-[80px] p-3 bg-surface-primary font-mono text-sm resize-y outline-none text-text-primary"
           value={localLatex}
           onChange={(e) => setLocalLatex(e.target.value)}
           onBlur={commitLatex}
@@ -162,7 +175,7 @@ const MathBlockComponent = memo(function MathBlockComponent({
             }
           }}
           spellCheck={false}
-          placeholder="Enter LaTeX…"
+          placeholder="Enter LaTeX…  e.g. \int_0^\infty e^{-x}\,dx = 1"
         />
       </div>
     );
@@ -170,19 +183,21 @@ const MathBlockComponent = memo(function MathBlockComponent({
 
   return (
     <div
-      className="my-4 py-4 flex justify-center cursor-pointer hover:bg-surface-secondary rounded-lg transition-colors"
+      className="group relative my-4 py-4 flex justify-center cursor-pointer hover:bg-surface-secondary rounded-lg transition-colors"
       contentEditable={false}
-      onClick={() => {
-        clearSelection();
-        setSelected(true);
-      }}
+      role="button"
+      title="Click to edit"
+      onClick={() => setEditing(true)}
     >
+      <span className="absolute top-1.5 right-2 flex items-center gap-1 rounded-md border border-surface-border bg-surface-primary px-1.5 py-0.5 text-[11px] font-medium text-text-tertiary opacity-0 group-hover:opacity-100 transition-opacity">
+        <Pencil className="w-3 h-3" /> Edit
+      </span>
       {renderError ? (
         <div className="text-red-500 text-sm font-mono">{latex || 'Empty math block'}</div>
       ) : renderedHtml ? (
         <div dangerouslySetInnerHTML={{ __html: renderedHtml }} />
       ) : (
-        <span className="text-text-tertiary text-sm">Empty math block</span>
+        <span className="text-text-tertiary text-sm">Empty math block — click to edit</span>
       )}
     </div>
   );

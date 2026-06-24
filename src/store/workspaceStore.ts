@@ -11,6 +11,7 @@ interface WorkspaceState {
   docs: DocRecord[];
   activeDocId: ID | null;
   initialized: boolean;
+  draggingId: ID | null;
 
   // UI
   theme: Theme;
@@ -37,6 +38,7 @@ interface WorkspaceState {
   setCommandPaletteOpen: (open: boolean) => void;
   setVersionHistoryOpen: (open: boolean) => void;
   setExportDialogOpen: (open: boolean) => void;
+  setDraggingId: (id: ID | null) => void;
 }
 
 function getStoredTheme(): Theme {
@@ -54,6 +56,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   docs: [],
   activeDocId: null,
   initialized: false,
+  draggingId: null,
 
   theme: getStoredTheme(),
   sidebarOpen: true,
@@ -135,4 +138,5 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   setCommandPaletteOpen: (open) => set({ commandPaletteOpen: open }),
   setVersionHistoryOpen: (open) => set({ versionHistoryOpen: open }),
   setExportDialogOpen: (open) => set({ exportDialogOpen: open }),
+  setDraggingId: (id) => set({ draggingId: id }),
 }));

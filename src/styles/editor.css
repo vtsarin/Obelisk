@@ -232,11 +232,13 @@
 .obelisk-text-subscript { font-size: 0.75em; vertical-align: sub; }
 .obelisk-text-superscript { font-size: 0.75em; vertical-align: super; }
 
-/* ── Callout blocks (ElementNode → createDOM div.callout-block.callout-VARIANT) ── */
+/* ── Callout blocks (ElementNode → createDOM div.callout-block.callout-VARIANT) ──
+   Block layout (not flex) so the editable content fills the width — the caret
+   stays visible, clicking anywhere focuses the text, and multi-line content
+   stacks vertically. The variant icon is an absolutely-positioned ::before. */
 .callout-block {
-  display: flex;
-  gap: 12px;
-  padding: 14px 16px;
+  position: relative;
+  padding: 14px 16px 14px 46px;
   margin: 0.8em 0;
   border-radius: 10px;
   border: 1px solid transparent;
@@ -245,10 +247,11 @@
 
 .callout-block::before {
   content: '';
-  flex: none;
+  position: absolute;
+  left: 15px;
+  top: 15px;
   width: 20px;
   height: 20px;
-  margin-top: 2px;
   background-color: var(--callout-fg);
   -webkit-mask: var(--callout-icon) center / 20px 20px no-repeat;
   mask: var(--callout-icon) center / 20px 20px no-repeat;
@@ -257,6 +260,10 @@
 .callout-block > * {
   margin-top: 0;
   margin-bottom: 0;
+}
+
+.callout-block > * + * {
+  margin-top: 0.3em;
 }
 
 .callout-info {
