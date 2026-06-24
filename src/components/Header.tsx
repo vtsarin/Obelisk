@@ -6,6 +6,7 @@ import { cn } from '@/lib/cn';
 import { Tooltip } from './Tooltip';
 import { ObeliskMark } from './ObeliskMark';
 import { AccentPicker } from './AccentPicker';
+import { SaveToDiskButton } from './SaveToDiskButton';
 
 function SaveStatusChip() {
   const status = useWorkspaceStore((s) => s.saveStatus);
@@ -98,6 +99,8 @@ export function Header() {
         <span>Search</span>
         <kbd className="ml-2 rounded bg-surface-primary border border-surface-border px-1.5 py-0.5 text-[10px] font-medium text-text-secondary">⌘K</kbd>
       </button>
+
+      <SaveToDiskButton />
 
       <div className="flex items-center gap-0.5">
         <IconButton

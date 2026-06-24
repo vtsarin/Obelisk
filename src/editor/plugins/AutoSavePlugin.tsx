@@ -35,6 +35,8 @@ export function AutoSavePlugin({ docId }: { docId: string }) {
       await workspaceStore.saveContent(docId, state, plainText, title);
       await workspaceStore.snapshot(docId, state);
       await refreshTree();
+      // Editing changes the doc → the on-disk copy is now behind.
+      useWorkspaceStore.getState().markDiskDirty();
       setSaveStatus('saved');
 
       // Fade to idle after 2s

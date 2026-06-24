@@ -1,7 +1,19 @@
 import { create } from 'zustand';
 import type { ID, FolderRecord, DocRecord } from '@/types/models';
 import { workspaceStore as db } from '@/db/workspaceStore.impl';
+import { assetStore } from '@/db/assetStore.impl';
+import { loadDirHandle, saveDirHandle } from '@/db/fsHandle';
+import { syncWorkspaceToDirectory } from '@/features/diskSync/syncToDirectory';
 import { type Accent, DEFAULT_ACCENT, isAccent } from '@/lib/accents';
+
+export type DiskStatus = 'idle' | 'syncing' | 'saved' | 'error' | 'denied';
+const diskSupported = typeof window !== 'undefined' && 'showDirectoryPicker' in window;
+
+async function ensureRWPermission(handle: FileSystemDirectoryHandle): Promise<boolean> {
+  const opts = { mode: 'readwrite' as const };
+  if ((await handle.queryPermission?.(opts)) === 'granted') return true;
+  return (await handle.requestPermission?.(opts)) === 'granted';
+}
 
 export type Theme = 'light' | 'dark';
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
@@ -25,6 +37,12 @@ interface WorkspaceState {
   versionHistoryOpen: boolean;
   exportDialogOpen: boolean;
 
+  // Save-to-disk (File System Access)
+  diskSupported: boolean;
+  diskConnected: boolean;
+  diskDirty: boolean;
+  diskStatus: DiskStatus;
+
   // Actions
   init: () => Promise<void>;
   refreshTree: () => Promise<void>;
@@ -44,6 +62,8 @@ interface WorkspaceState {
   setVersionHistoryOpen: (open: boolean) => void;
   setExportDialogOpen: (open: boolean) => void;
   setDraggingId: (id: ID | null) => void;
+  markDiskDirty: () => void;
+  saveToDisk: () => Promise<void>;
 }
 
 function getStoredTheme(): Theme {
@@ -94,7 +114,19 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   versionHistoryOpen: false,
   exportDialogOpen: false,
 
+  diskSupported,
+  diskConnected: false,
+  diskDirty: getStoredBool('obelisk-disk-dirty', false),
+  diskStatus: 'idle',
+
   init: async () => {
+    // Ask the browser to keep IndexedDB durable (never evicted under pressure).
+    try {
+      await navigator.storage?.persist?.();
+    } catch {
+      // best-effort
+    }
+
     await db.init();
     const meta = await db.getMeta();
     const { folders, docs } = await db.listTree();
@@ -104,6 +136,17 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     const accent = getStoredAccent();
     document.documentElement.setAttribute('data-accent', accent);
 
+    // A previously-picked disk folder reconnects automatically (permission is
+    // re-granted on the first save this session).
+    let diskConnected = false;
+    if (diskSupported) {
+      try {
+        diskConnected = !!(await loadDirHandle());
+      } catch {
+        diskConnected = false;
+      }
+    }
+
     set({
       folders,
       docs,
@@ -111,6 +154,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       initialized: true,
       theme,
       accent,
+      diskConnected,
     });
   },
 
@@ -128,23 +172,27 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     const doc = await db.createDoc(title, parentId);
     await get().refreshTree();
     await get().setActiveDoc(doc.id);
+    get().markDiskDirty();
     return doc;
   },
 
   createFolder: async (name = 'New Folder', parentId = null) => {
     const folder = await db.createFolder(name, parentId);
     await get().refreshTree();
+    get().markDiskDirty();
     return folder;
   },
 
   renameItem: async (id, name) => {
     await db.rename(id, name);
     await get().refreshTree();
+    get().markDiskDirty();
   },
 
   moveItem: async (id, newParentId, newOrder) => {
     await db.move(id, newParentId, newOrder);
     await get().refreshTree();
+    get().markDiskDirty();
   },
 
   removeItem: async (id) => {
@@ -155,6 +203,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       await db.setLastOpenDoc(null);
     }
     await get().refreshTree();
+    get().markDiskDirty();
   },
 
   setTheme: (theme) => {
@@ -187,4 +236,62 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   setVersionHistoryOpen: (open) => set({ versionHistoryOpen: open }),
   setExportDialogOpen: (open) => set({ exportDialogOpen: open }),
   setDraggingId: (id) => set({ draggingId: id }),
+
+  markDiskDirty: () => {
+    if (!get().diskSupported) return;
+    if (!get().diskDirty) {
+      try { localStorage.setItem('obelisk-disk-dirty', 'true'); } catch { /* ignore */ }
+      set({ diskDirty: true });
+    }
+    if (get().diskStatus === 'saved') set({ diskStatus: 'idle' });
+  },
+
+  saveToDisk: async () => {
+    if (!diskSupported || get().diskStatus === 'syncing') return;
+    set({ diskStatus: 'syncing' });
+    try {
+      let handle = await loadDirHandle();
+      if (handle && !(await ensureRWPermission(handle))) {
+        handle = null; // permission lost/denied — re-pick below
+      }
+      if (!handle) {
+        // Picker + permission require a user gesture (this runs from a click).
+        handle = await window.showDirectoryPicker!({ id: 'obelisk-workspace', mode: 'readwrite' });
+        if (!(await ensureRWPermission(handle))) {
+          set({ diskStatus: 'denied' });
+          return;
+        }
+        await saveDirHandle(handle);
+      }
+
+      const { folders, docs } = get();
+      await syncWorkspaceToDirectory(
+        handle,
+        {
+          folders,
+          docs,
+          loadContent: (id) => db.loadContent(id),
+          listAssets: (id) => assetStore.list(id),
+          getBlob: (path) => assetStore.getBlob(path),
+        },
+        Date.now()
+      );
+
+      try { localStorage.setItem('obelisk-disk-dirty', 'false'); } catch { /* ignore */ }
+      set({ diskConnected: true, diskDirty: false, diskStatus: 'saved' });
+      setTimeout(() => {
+        if (useWorkspaceStore.getState().diskStatus === 'saved') {
+          useWorkspaceStore.setState({ diskStatus: 'idle' });
+        }
+      }, 2500);
+    } catch (err) {
+      // User dismissed the folder picker — not an error.
+      if ((err as DOMException)?.name === 'AbortError') {
+        set({ diskStatus: 'idle' });
+        return;
+      }
+      console.error('Save to disk failed:', err);
+      set({ diskStatus: 'error' });
+    }
+  },
 }));
